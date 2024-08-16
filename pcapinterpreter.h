@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include "IInterpreter.h"
 #include "ConsoleHandler.h"
+#include <QObject>
+#include <QDebug>
 
 
 struct PcapFile
@@ -22,16 +24,20 @@ struct PcapFile
     std::vector<unsigned char> data;
 };
 
-class PcapInterpreter : public IInterpreter<void>
+class PcapInterpreter :  public QObject
 {
+    Q_OBJECT
+
 public:
-    PcapInterpreter();
+    explicit PcapInterpreter(QObject *parent = nullptr);
     virtual ~PcapInterpreter() = default;
     void setFilter(const std::string& srcIp, const std::string& dstIp);
     bool isMatchedFilter(const std::string& srcIp, const std::string& dstIp) const;
-    void interpret(const unsigned char* packet, std::size_t length) override;
+    void interpret(const unsigned char* packet, std::size_t length) ;
     std::string getProtocolName(int protocol_number);
 
+signals:
+    void packetConstructed(const PcapFile &pFile);
 
 private:
     std::string m_FilterSrcIp;

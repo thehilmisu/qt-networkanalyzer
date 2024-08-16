@@ -17,6 +17,7 @@ public:
     static FileMonitor& getInstance();
     void setFileName(const std::string& fileName);
     void setFilePosition(std::streampos position);
+    void setPcapInterpreter(PcapInterpreter *pcapInterpreter);
 
 protected:
     void run() override;
@@ -31,7 +32,7 @@ private:
 
     std::string m_Filename;
     std::streampos m_FilePosition;
-    PcapInterpreter m_Interpreter;
+    PcapInterpreter *m_Interpreter;
 };
 
 #endif // FILEMONITOR_H

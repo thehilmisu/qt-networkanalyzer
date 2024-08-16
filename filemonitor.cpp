@@ -15,6 +15,11 @@ FileMonitor::~FileMonitor() {
     }
 }
 
+void FileMonitor::setPcapInterpreter(PcapInterpreter *pcapInterpreter)
+{
+    m_Interpreter = pcapInterpreter;
+}
+
 // Function to set the file name
 void FileMonitor::setFileName(const std::string& fileName) {
     m_Filename = fileName;
@@ -49,7 +54,7 @@ void FileMonitor::monitor() {
             fileStream.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
             m_FilePosition = fileStream.tellg();
 
-            m_Interpreter.interpret(buffer.data(), buffer.size());
+            m_Interpreter->interpret(buffer.data(), buffer.size());
         }
 
         fileStream.close();

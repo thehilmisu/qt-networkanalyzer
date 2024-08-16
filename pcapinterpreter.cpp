@@ -1,8 +1,12 @@
 #include "pcapinterpreter.h"
 
-
-PcapInterpreter::PcapInterpreter() : m_FilterSrcIp(""), m_FilterDstIp("")
+PcapInterpreter::PcapInterpreter(QObject *parent)
+    : QObject(parent)
 {
+
+    // Register the PcapFile type with Qt's meta-object system
+    qRegisterMetaType<PcapFile>("PcapFile");
+
     // got it from wikipedia not a complete list
     ipProtocolNumbers =
         {
@@ -37,7 +41,6 @@ PcapInterpreter::PcapInterpreter() : m_FilterSrcIp(""), m_FilterDstIp("")
             {137, "MPLS-in-IP"}  // MPLS-in-IP
         };
 }
-
 
 void PcapInterpreter::setFilter(const std::string& srcIp, const std::string& dstIp)
 {
@@ -84,10 +87,10 @@ void PcapInterpreter::interpret(const unsigned char* packet, std::size_t length)
     std::size_t dataLength = length - (ipHeader->ip_hl * 4);
     pFile.data.assign(dataStart, dataStart + dataLength);
 
-    bool isMatch = isMatchedFilter(m_FilterSrcIp, m_FilterDstIp);
+    //bool isMatch = isMatchedFilter(m_FilterSrcIp, m_FilterDstIp);
 
-    //Application::getInstance().addPackets(pFile);
+    emit packetConstructed(pFile);
 
-    ConsoleHandler::getInstance().print(pFile.dstIp);
+    //ConsoleHandler::getInstance().print(pFile.dstIp);
 }
 
