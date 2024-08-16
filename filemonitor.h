@@ -8,8 +8,9 @@
 #include <iomanip>
 #include <chrono>
 #include "pcapinterpreter.h"
+#include "IMonitor.h"
 
-class FileMonitor : public QThread
+class FileMonitor : public QThread, public IMonitor
 {
     Q_OBJECT
 
@@ -28,7 +29,7 @@ private:
     FileMonitor(const FileMonitor&) = delete;
     FileMonitor& operator=(const FileMonitor&) = delete;
 
-    void monitor();
+    void monitor() override;
 
     std::string m_Filename;
     std::streampos m_FilePosition;

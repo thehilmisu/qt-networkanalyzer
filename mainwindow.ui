@@ -14,48 +14,25 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="devicesCombo">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>70</y>
-      <width>131</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>30</y>
       <width>201</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>Available Network Devices</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnScanDevices">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>100</y>
-      <width>171</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Scan</string>
+     <string>Selected network interface : </string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnStartCapture">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>210</y>
-      <width>251</width>
+      <x>490</x>
+      <y>30</y>
+      <width>181</width>
       <height>25</height>
      </rect>
     </property>
@@ -66,11 +43,47 @@
    <widget class="QListWidget" name="monitoredPackets">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>10</y>
-      <width>561</width>
+      <x>10</x>
+      <y>60</y>
+      <width>771</width>
       <height>192</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblSelectedInterface">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>30</y>
+      <width>201</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>no interface selected</string>
+    </property>
+   </widget>
+   <widget class="QPlainTextEdit" name="plainTextEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>300</y>
+      <width>771</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>481</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select packet above to see it's data content below</string>
     </property>
    </widget>
   </widget>
@@ -83,8 +96,43 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSelect_network_device"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemove_pcap_file"/>
+    <addaction name="actionExit_2"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionTest">
+   <property name="text">
+    <string>Test</string>
+   </property>
+  </action>
+  <action name="actionSelect_network_device">
+   <property name="text">
+    <string>Select network device</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionRemove_pcap_file">
+   <property name="text">
+    <string>Remove pcap file</string>
+   </property>
+  </action>
+  <action name="actionExit_2">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItem>
+#include <QMessageBox>
 #include "filemonitor.h"
 #include "pcapcapturer.h"
 #include "logger.h"
@@ -24,13 +25,20 @@ public:
     ~MainWindow();
 
 private slots:
-    void scanDevicesClicked();
     void startCapture();
-    void networkDeviceSelectionChanged(const QString& selectedItem);
     void packetParsed(const PcapFile &pFile);
+    void packetItemSelected();
+    void onNetworkDeviceSelect();
+    void networkDeviceSelected();
+    void removePcapFile();
 private:
     Ui::MainWindow *ui;
     PcapInterpreter *pcapInterpreter;
+    QMenu *actionNetworkMenu;
+    bool isNetworkDeviceSelected;
+    QVector<PcapFile> packets;
+    std::string fileName = "packets.pcap";
+
 
 
 };

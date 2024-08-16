@@ -10,62 +10,127 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->btnScanDevices, &QPushButton::clicked, this, &MainWindow::scanDevicesClicked);
-    connect(ui->devicesCombo, &QComboBox::currentTextChanged,this, &MainWindow::networkDeviceSelectionChanged);
+    isNetworkDeviceSelected = false;
+    packets.clear();
+
+    actionNetworkMenu = new QMenu(this);
+    ui->actionSelect_network_device->setMenu(actionNetworkMenu);
+
+    connect(ui->menuFile,&QMenu::aboutToShow,this,&MainWindow::onNetworkDeviceSelect);
+
+    connect(ui->actionRemove_pcap_file,&QAction::triggered,this,&MainWindow::removePcapFile);
+
+    connect(ui->actionExit_2,&QAction::triggered,this,&MainWindow::close);
+
     connect(ui->btnStartCapture, &QPushButton::clicked, this, &MainWindow::startCapture);
 
-    bool connected = connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &MainWindow::packetParsed);
+    connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &MainWindow::packetParsed);
+
+    connect(ui->monitoredPackets,&QListWidget::itemSelectionChanged,this,&MainWindow::packetItemSelected);
 
 }
 
 MainWindow::~MainWindow()
 {
-    //TODO: handle the threads on destructor
+    PcapCapturer::getInstance().deleteLater();
+    FileMonitor::getInstance().deleteLater();
     delete ui;
 }
 
-void MainWindow::scanDevicesClicked()
-{
-    ui->devicesCombo->clear();
-
-    NetworkDeviceFinder& finder = NetworkDeviceFinder::getInstance();
-    std::vector<std::string> devices = finder.listDevices();
-
-    QStringList availableDevices;
-    for(int i=0;i<devices.size();++i)
-        availableDevices << devices.at(i).c_str();
-
-    ui->devicesCombo->addItems(availableDevices);
-
-}
-
-void MainWindow::networkDeviceSelectionChanged(const QString& selectedItem)
-{
-    std::cout << selectedItem.toStdString() << std::endl;
-    PcapCapturer::getInstance().setDev(selectedItem.toStdString());
-}
 
 void MainWindow::startCapture()
 {
-    std::string fileName = "packets.pcap";
-    Logger::getInstance().setLogFile(fileName);
+    if(isNetworkDeviceSelected)
+    {
 
-    PcapCapturer::getInstance().start();
+        Logger::getInstance().setLogFile(fileName);
 
-    FileMonitor::getInstance().setFileName(fileName);
-    FileMonitor::getInstance().setPcapInterpreter(pcapInterpreter);
-    FileMonitor::getInstance().start();
+        PcapCapturer::getInstance().start();
+
+        FileMonitor::getInstance().setFileName(fileName);
+        FileMonitor::getInstance().setPcapInterpreter(pcapInterpreter);
+        FileMonitor::getInstance().start();
+    }
+    else
+    {
+        QMessageBox::warning(this,"Warning","Select a network interface first");
+    }
+
 }
 
 void MainWindow::packetParsed(const PcapFile &pFile)
 {
-    //
-
-    QString itemText = QString("%1 -> %2 | %3 | %4 bytes")
+    QString itemText = QString("%1 ---> %2    |   %3   |    %4 bytes")
                            .arg(QString::fromStdString(pFile.srcIp))
                            .arg(QString::fromStdString(pFile.dstIp))
                            .arg(QString::fromStdString(pFile.protocol_name))
                            .arg(pFile.length);
 
     ui->monitoredPackets->addItem(itemText);
+
+    //ui->monitoredPackets->scrollToBottom();
+
+    packets.push_back(pFile);
+}
+
+void MainWindow::onNetworkDeviceSelect()
+{
+
+    NetworkDeviceFinder& finder = NetworkDeviceFinder::getInstance();
+    std::vector<std::string> devices = finder.listDevices();
+
+    QAction *actionNetworkItem = NULL;
+    actionNetworkMenu->clear();
+    for(int i=0;i<devices.size();++i)
+    {
+        actionNetworkItem = new QAction(devices.at(i).c_str(), this);
+        connect(actionNetworkItem, &QAction::triggered, this, &MainWindow::networkDeviceSelected);
+        //actionNetworkItem->setMenu(actionNetworkMenu);
+        actionNetworkMenu->addAction(actionNetworkItem);
+
+    }
+
+}
+
+void MainWindow::networkDeviceSelected()
+{
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (action)
+    {
+        isNetworkDeviceSelected = true;
+        QString deviceName = action->text();
+        ui->lblSelectedInterface->setText(deviceName);
+        //qDebug() << "Selected network device:" << deviceName;
+
+        // Handle the selected network device
+        PcapCapturer::getInstance().setDev(deviceName.toStdString());
+    }
+}
+
+
+
+void MainWindow::packetItemSelected()
+{
+    ui->plainTextEdit->clear();
+
+    //const auto& packetData = packets.at(ui->monitoredPackets->currentRow()).data;
+    QString formattedText = packets.at(ui->monitoredPackets->currentRow()).formattedData;
+
+    ui->plainTextEdit->appendPlainText(formattedText);
+
+}
+
+void MainWindow::removePcapFile()
+{
+    QFile file(fileName.c_str());
+
+    if (file.exists()) {
+        if (file.remove()) {
+            QMessageBox::information(this, "File Removal", "File deleted successfully");
+        } else {
+            QMessageBox::information(this, "File Removal", "Failed to delete file, check if capturing in progress");
+        }
+    } else {
+        QMessageBox::information(this, "File Removal", "File does not exists");
+    }
 }

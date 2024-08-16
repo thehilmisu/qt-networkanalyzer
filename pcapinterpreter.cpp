@@ -64,6 +64,56 @@ std::string PcapInterpreter::getProtocolName(int protocol_number)
     return "Unknown Protocol";
 }
 
+QString PcapInterpreter::formatPacketData(const std::vector<unsigned char>& data)
+{
+    const int bytesPerLine = 16;  // Number of bytes to display per line
+    QString formattedData;
+    std::ostringstream oss;
+
+    for (std::size_t i = 0; i < data.size(); i += bytesPerLine)
+    {
+        // Print the offset in the packet
+        oss << std::setw(6) << std::setfill('0') << std::hex << i << ": ";
+
+        // Print hex values
+        for (std::size_t j = 0; j < bytesPerLine; ++j)
+        {
+            if (i + j < data.size())
+            {
+                oss << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(data[i + j]) << " ";
+            }
+            else
+            {
+                oss << "   ";  // Add spacing for incomplete lines
+            }
+        }
+
+        oss << "  ";
+
+        // Print ASCII representation
+        for (std::size_t j = 0; j < bytesPerLine; ++j)
+        {
+            if (i + j < data.size())
+            {
+                unsigned char byte = data[i + j];
+                if (std::isprint(byte))
+                {
+                    oss << byte;
+                }
+                else
+                {
+                    oss << '.';
+                }
+            }
+        }
+
+        oss << "\n";
+    }
+
+    formattedData = QString::fromStdString(oss.str());
+    return formattedData;
+}
+
 void PcapInterpreter::interpret(const unsigned char* packet, std::size_t length)
 {
     PcapFile pFile;
@@ -86,6 +136,8 @@ void PcapInterpreter::interpret(const unsigned char* packet, std::size_t length)
     const unsigned char* dataStart = packet + (ipHeader->ip_hl * 4);
     std::size_t dataLength = length - (ipHeader->ip_hl * 4);
     pFile.data.assign(dataStart, dataStart + dataLength);
+
+    pFile.formattedData = formatPacketData(pFile.data);
 
     //bool isMatch = isMatchedFilter(m_FilterSrcIp, m_FilterDstIp);
 
