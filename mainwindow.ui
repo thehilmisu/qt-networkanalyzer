@@ -40,16 +40,6 @@
      <string>Start Capture</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="monitoredPackets">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>771</width>
-      <height>192</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="lblSelectedInterface">
     <property name="geometry">
      <rect>
@@ -84,6 +74,16 @@
     </property>
     <property name="text">
      <string>Select packet above to see it's data content below</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="monitoredPackets">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>771</width>
+      <height>192</height>
+     </rect>
     </property>
    </widget>
   </widget>

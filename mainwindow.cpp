@@ -26,14 +26,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &MainWindow::packetParsed);
 
-    connect(ui->monitoredPackets,&QListWidget::itemSelectionChanged,this,&MainWindow::packetItemSelected);
+    ui->monitoredPackets->setColumnCount(4);
+    ui->monitoredPackets->setHorizontalHeaderLabels({"Source IP", "Destination IP", "Protocol", "Length (bytes)"});
+    ui->monitoredPackets->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->monitoredPackets->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->monitoredPackets->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->monitoredPackets->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(ui->monitoredPackets,&QTableWidget::itemSelectionChanged,this,&MainWindow::packetItemSelected);
 
 }
 
 MainWindow::~MainWindow()
 {
-    PcapCapturer::getInstance().deleteLater();
-    FileMonitor::getInstance().deleteLater();
+    // Stop and wait for PcapCapturer thread
+    PcapCapturer &pcapCapturer = PcapCapturer::getInstance();
+    pcapCapturer.requestStop();
+    pcapCapturer.wait();  // Wait until the thread is finished
+    pcapCapturer.deleteLater();
+
+    // Stop and wait for FileMonitor thread
+    FileMonitor &fileMonitor = FileMonitor::getInstance();
+    fileMonitor.requestStop();
+    fileMonitor.wait();  // Wait until the thread is finished
+    fileMonitor.deleteLater();
+
     delete ui;
 }
 
@@ -60,13 +76,14 @@ void MainWindow::startCapture()
 
 void MainWindow::packetParsed(const PcapFile &pFile)
 {
-    QString itemText = QString("%1 ---> %2    |   %3   |    %4 bytes")
-                           .arg(QString::fromStdString(pFile.srcIp))
-                           .arg(QString::fromStdString(pFile.dstIp))
-                           .arg(QString::fromStdString(pFile.protocol_name))
-                           .arg(pFile.length);
 
-    ui->monitoredPackets->addItem(itemText);
+    int row = ui->monitoredPackets->rowCount();
+    ui->monitoredPackets->insertRow(row);
+    ui->monitoredPackets->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(pFile.srcIp)));
+    ui->monitoredPackets->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(pFile.dstIp)));
+    ui->monitoredPackets->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(pFile.protocol_name)));
+    ui->monitoredPackets->setItem(row, 3, new QTableWidgetItem(QString::number(pFile.length)));
+
 
     //ui->monitoredPackets->scrollToBottom();
 

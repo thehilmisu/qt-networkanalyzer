@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QMutex>
 #include <string>
 #include <pcap.h>
 
@@ -12,27 +13,23 @@ class PcapCapturer : public QThread
 
 public:
     static PcapCapturer& getInstance();
+    ~PcapCapturer();
+
     void setDev(const std::string& dev);
+    void requestStop();
 
 protected:
     void run() override;
 
 private:
-    PcapCapturer() = default;
-    ~PcapCapturer();
-    PcapCapturer(const PcapCapturer&) = delete;
-    PcapCapturer& operator=(const PcapCapturer&) = delete;
-
-    static void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
-    static void packetHandlerWrapper(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet) {
-        PcapCapturer* app = reinterpret_cast<PcapCapturer*>(userData);
-        app->packetHandler(userData, pkthdr, packet);
-    }
-
+    PcapCapturer() : stopRequested(false), handle(nullptr) {}
     void captureThread();
+    static void packetHandler(u_char *userData, const struct pcap_pkthdr *pkthdr, const u_char *packet);
 
     std::string device;
-
+    pcap_t *handle;
+    QMutex mutex;
+    bool stopRequested;
 };
 
 #endif // PCAPCAPTURER_H

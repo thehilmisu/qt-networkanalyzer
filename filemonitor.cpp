@@ -1,15 +1,18 @@
 #include "filemonitor.h"
 
-// Singleton instance of FileMonitor
-FileMonitor& FileMonitor::getInstance() {
+
+FileMonitor& FileMonitor::getInstance()
+{
     static FileMonitor instance;
     return instance;
 }
 
-// Destructor
-FileMonitor::~FileMonitor() {
+
+FileMonitor::~FileMonitor()
+{
     // Ensure the thread is safely stopped before destruction
-    if (isRunning()) {
+    if (stopRequested)
+    {
         quit();
         wait();
     }
@@ -21,24 +24,35 @@ void FileMonitor::setPcapInterpreter(PcapInterpreter *pcapInterpreter)
 }
 
 // Function to set the file name
-void FileMonitor::setFileName(const std::string& fileName) {
+void FileMonitor::setFileName(const std::string& fileName)
+{
     m_Filename = fileName;
+    stopRequested = false;
 }
 
 // Function to set the file position
-void FileMonitor::setFilePosition(std::streampos position) {
+void FileMonitor::setFilePosition(std::streampos position)
+{
     m_FilePosition = position;
 }
 
 // The thread's run method
-void FileMonitor::run() {
+void FileMonitor::run()
+{
     monitor();
 }
 
+void FileMonitor::requestStop()
+{
+    QMutexLocker locker(&mutex);
+    stopRequested = true;
+}
+
 // The monitoring function
-void FileMonitor::monitor() {
+void FileMonitor::monitor()
+{
     setFilePosition(0);
-    while (true)
+    while (!stopRequested)
     {
         std::ifstream fileStream(m_Filename, std::ios::binary | std::ios::ate);
         if (!fileStream.is_open())

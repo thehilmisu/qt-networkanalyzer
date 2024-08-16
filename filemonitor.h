@@ -2,6 +2,7 @@
 #define FILEMONITOR_H
 
 #include <QThread>
+#include <QMutex>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -19,6 +20,7 @@ public:
     void setFileName(const std::string& fileName);
     void setFilePosition(std::streampos position);
     void setPcapInterpreter(PcapInterpreter *pcapInterpreter);
+    void requestStop();
 
 protected:
     void run() override;
@@ -34,6 +36,9 @@ private:
     std::string m_Filename;
     std::streampos m_FilePosition;
     PcapInterpreter *m_Interpreter;
+
+    QMutex mutex;
+    bool stopRequested;
 };
 
 #endif // FILEMONITOR_H
