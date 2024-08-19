@@ -21,8 +21,8 @@ PcapCapturer::~PcapCapturer()
 
 void PcapCapturer::setDev(const std::string& dev)
 {
-    QMutexLocker locker(&mutex);
     device = dev.c_str();
+    QMutexLocker locker(&mutex);
     stopRequested = false;
 }
 

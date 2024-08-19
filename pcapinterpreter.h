@@ -11,20 +11,10 @@
 #include <arpa/inet.h>
 #include "IInterpreter.h"
 #include "ConsoleHandler.h"
+#include "pcapfile.h"
 #include <QObject>
 #include <QDebug>
 
-
-struct PcapFile
-{
-    std::string srcIp;
-    std::string dstIp;
-    uint8_t protocol_number;
-    std::string protocol_name;
-    std::size_t length;
-    std::vector<unsigned char> data;
-    QString formattedData;
-};
 
 class PcapInterpreter :  public QObject, public IInterpreter<void>
 {
@@ -46,6 +36,9 @@ private:
     std::string m_FilterDstIp;
     std::unordered_map<int, std::string> ipProtocolNumbers;
     QString formatPacketData(const std::vector<unsigned char>& data);
+
+
+
 };
 
 #endif // PCAPINTERPRETER_H

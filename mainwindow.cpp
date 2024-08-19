@@ -2,6 +2,10 @@
 #include "./ui_mainwindow.h"
 
 #include <QDebug>
+#include "packetfiltermanager.h"
+#include "sourceipfilter.h"
+#include "destinationipfilter.h"
+#include "protocolfilter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -34,6 +38,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->monitoredPackets->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(ui->monitoredPackets,&QTableWidget::itemSelectionChanged,this,&MainWindow::packetItemSelected);
 
+    isCaptureStarted = false;
+
+    ui->filterTypeCombo->addItem("Source IP");
+    ui->filterTypeCombo->addItem("Destination IP");
+    ui->filterTypeCombo->addItem("Protocol Type");
+
 }
 
 MainWindow::~MainWindow()
@@ -56,20 +66,45 @@ MainWindow::~MainWindow()
 
 void MainWindow::startCapture()
 {
-    if(isNetworkDeviceSelected)
+
+    if(!isCaptureStarted)
     {
+        if(isNetworkDeviceSelected)
+        {
+            ui->btnStartCapture->setText("Stop Capture");
 
-        Logger::getInstance().setLogFile(fileName);
+            Logger::getInstance().setLogFile(fileName);
 
-        PcapCapturer::getInstance().start();
+            PcapCapturer::getInstance().start();
 
-        FileMonitor::getInstance().setFileName(fileName);
-        FileMonitor::getInstance().setPcapInterpreter(pcapInterpreter);
-        FileMonitor::getInstance().start();
+            FileMonitor::getInstance().setFileName(fileName);
+            FileMonitor::getInstance().setPcapInterpreter(pcapInterpreter);
+            FileMonitor::getInstance().start();
+
+            isCaptureStarted = true;
+        }
+        else
+        {
+            QMessageBox::warning(this,"Warning","Select a network interface first");
+        }
     }
     else
     {
-        QMessageBox::warning(this,"Warning","Select a network interface first");
+        ui->btnStartCapture->setText("Start Capture");
+
+        // Stop and wait for PcapCapturer thread
+        PcapCapturer &pcapCapturer = PcapCapturer::getInstance();
+        pcapCapturer.requestStop();
+        pcapCapturer.wait();  // Wait until the thread is finished
+
+
+        // Stop and wait for FileMonitor thread
+        FileMonitor &fileMonitor = FileMonitor::getInstance();
+        fileMonitor.requestStop();
+        fileMonitor.wait();  // Wait until the thread is finished
+
+        isCaptureStarted = false;
+
     }
 
 }
@@ -78,14 +113,13 @@ void MainWindow::packetParsed(const PcapFile &pFile)
 {
 
     int row = ui->monitoredPackets->rowCount();
+
     ui->monitoredPackets->insertRow(row);
     ui->monitoredPackets->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(pFile.srcIp)));
     ui->monitoredPackets->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(pFile.dstIp)));
     ui->monitoredPackets->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(pFile.protocol_name)));
     ui->monitoredPackets->setItem(row, 3, new QTableWidgetItem(QString::number(pFile.length)));
 
-
-    //ui->monitoredPackets->scrollToBottom();
 
     packets.push_back(pFile);
 }
@@ -124,7 +158,35 @@ void MainWindow::networkDeviceSelected()
     }
 }
 
+void MainWindow::onFilterCheckboxStateChanged(int state)
+{
+    PacketFilterManager filterManager;
 
+    if (state == Qt::Checked)
+    {
+        filterManager.addFilter(QSharedPointer<SourceIpFilter>::create("192.168.1.1"));
+        filterManager.addFilter(QSharedPointer<ProtocolFilter>::create("TCP"));
+    }
+
+    filteredPackets = filterManager.applyFilters(packets);
+    updatePacketDisplay();
+}
+
+void MainWindow::updatePacketDisplay()
+{
+    ui->monitoredPackets->clear();  // Clear current display
+
+    for (const auto& packet : filteredPackets)
+    {
+        int row = ui->monitoredPackets->rowCount();
+
+        ui->monitoredPackets->insertRow(row);
+        ui->monitoredPackets->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(packet.srcIp)));
+        ui->monitoredPackets->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(packet.dstIp)));
+        ui->monitoredPackets->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(packet.protocol_name)));
+        ui->monitoredPackets->setItem(row, 3, new QTableWidgetItem(QString::number(packet.length)));
+    }
+}
 
 void MainWindow::packetItemSelected()
 {
@@ -141,13 +203,19 @@ void MainWindow::removePcapFile()
 {
     QFile file(fileName.c_str());
 
-    if (file.exists()) {
-        if (file.remove()) {
+    if (file.exists())
+    {
+        if (file.remove())
+        {
             QMessageBox::information(this, "File Removal", "File deleted successfully");
-        } else {
+        }
+        else
+        {
             QMessageBox::information(this, "File Removal", "Failed to delete file, check if capturing in progress");
         }
-    } else {
+    }
+    else
+    {
         QMessageBox::information(this, "File Removal", "File does not exists");
     }
 }

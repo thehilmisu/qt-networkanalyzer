@@ -10,6 +10,8 @@
 #include "networkdevicefinder.h"
 #include "pcapinterpreter.h"
 
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -31,15 +33,18 @@ private slots:
     void onNetworkDeviceSelect();
     void networkDeviceSelected();
     void removePcapFile();
+    void onFilterCheckboxStateChanged(int state);
+
 private:
     Ui::MainWindow *ui;
     PcapInterpreter *pcapInterpreter;
     QMenu *actionNetworkMenu;
     bool isNetworkDeviceSelected;
+    bool isCaptureStarted;
     QVector<PcapFile> packets;
+    QVector<PcapFile> filteredPackets;
     std::string fileName = "packets.pcap";
-
-
+    void updatePacketDisplay();
 
 };
 #endif // MAINWINDOW_H

@@ -48,6 +48,12 @@ else()
     else()
         add_executable(NetworkAnalyzer
             ${PROJECT_SOURCES}
+            IPacketFilter.h
+            pcapfile.h
+            sourceipfilter.h
+            destinationipfilter.h
+            protocolfilter.h
+            packetfiltermanager.h
         )
     endif()
 endif()
