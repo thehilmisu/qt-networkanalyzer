@@ -34,7 +34,9 @@ private:
     std::string m_FilterDstIp;
     std::unordered_map<int, std::string> ipProtocolNumbers;
     QString formatPacketData(const std::vector<unsigned char>& data);
-
+    QString formatPacketDataContinuation(const std::vector<unsigned char>& data);
+    bool isWordContinuation(const std::string& prevLine, const std::string& currentLine);
+    QString detectLinksAndAPICalls(const std::vector<unsigned char>& data);
 
 
 };

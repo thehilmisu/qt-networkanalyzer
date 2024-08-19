@@ -12,6 +12,7 @@ struct PcapFile
     std::size_t length;
     std::vector<unsigned char> data;
     QString formattedData;
+    QString detectedLinks;
 };
 
 #endif // PCAPFILE_H

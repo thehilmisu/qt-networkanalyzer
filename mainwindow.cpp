@@ -11,6 +11,7 @@
 #include "sourceipfilter.h"
 #include "destinationipfilter.h"
 #include "protocolfilter.h"
+#include "ConsoleHandler.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -199,8 +200,11 @@ void MainWindow::packetItemSelected()
 
     //const auto& packetData = packets.at(ui->monitoredPackets->currentRow()).data;
     QString formattedText = packets.at(ui->monitoredPackets->currentRow()).formattedData;
+    QString detectedLinks = packets.at(ui->monitoredPackets->currentRow()).detectedLinks;
 
     ui->plainTextEdit->appendPlainText(formattedText);
+
+    ConsoleHandler::getInstance().print(detectedLinks.toStdString());
 
 }
 
