@@ -1,5 +1,6 @@
 #include "filemonitor.h"
-
+#include <fstream>
+#include <iostream>
 
 FileMonitor& FileMonitor::getInstance()
 {

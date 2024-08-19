@@ -4,13 +4,7 @@
 #include <QMainWindow>
 #include <QStandardItem>
 #include <QMessageBox>
-#include "filemonitor.h"
-#include "pcapcapturer.h"
-#include "logger.h"
-#include "networkdevicefinder.h"
 #include "pcapinterpreter.h"
-
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

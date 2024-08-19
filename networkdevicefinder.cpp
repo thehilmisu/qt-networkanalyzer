@@ -1,4 +1,5 @@
 #include "networkdevicefinder.h"
+#include "ConsoleHandler.h"
 
 
 #if defined(_WIN32) || defined(_WIN64)

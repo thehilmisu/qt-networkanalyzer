@@ -3,11 +3,6 @@
 
 #include <QThread>
 #include <QMutex>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <chrono>
 #include "pcapinterpreter.h"
 #include "IMonitor.h"
 

@@ -1,7 +1,6 @@
 #ifndef IMONITOR_H
 #define IMONITOR_H
 
-#include <cstddef>
 
 class IMonitor
 {

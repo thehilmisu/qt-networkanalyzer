@@ -2,15 +2,13 @@
 #define PCAPINTERPRETER_H
 
 #include <string>
-#include <iomanip>
-#include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <pcap.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include "IInterpreter.h"
-#include "ConsoleHandler.h"
+//#include "ConsoleHandler.h"
 #include "pcapfile.h"
 #include <QObject>
 #include <QDebug>

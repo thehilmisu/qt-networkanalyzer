@@ -1,4 +1,6 @@
 #include "pcapinterpreter.h"
+#include <iomanip>
+#include <iostream>
 
 PcapInterpreter::PcapInterpreter(QObject *parent)
     : QObject(parent)

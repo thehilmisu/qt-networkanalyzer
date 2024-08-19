@@ -1,6 +1,11 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+
+#include "filemonitor.h"
+#include "pcapcapturer.h"
+#include "logger.h"
+#include "networkdevicefinder.h"
 #include <QDebug>
 #include "packetfiltermanager.h"
 #include "sourceipfilter.h"

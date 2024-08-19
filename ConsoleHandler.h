@@ -2,7 +2,6 @@
 #define CONSOLE_HANDLER_H
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 class ConsoleHandler

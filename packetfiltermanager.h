@@ -7,28 +7,36 @@
 
 class PacketFilterManager {
 public:
-    void addFilter(QSharedPointer<PacketFilter> filter) {
+    void addFilter(QSharedPointer<PacketFilter> filter)
+    {
         filters.append(filter);
     }
 
-    QVector<PcapFile> applyFilters(const QVector<PcapFile>& packets) const {
+    QVector<PcapFile> applyFilters(const QVector<PcapFile>& packets) const
+    {
         QVector<PcapFile> filteredPackets;
-        for (const auto& packet : packets) {
-            if (matchesAllFilters(packet)) {
+        for (const auto& packet : packets)
+        {
+            if (matchesAllFilters(packet))
+            {
                 filteredPackets.append(packet);
             }
         }
         return filteredPackets;
     }
 
-    void clearFilters() {
+    void clearFilters()
+    {
         filters.clear();
     }
 
 private:
-    bool matchesAllFilters(const PcapFile& packet) const {
-        for (const auto& filter : filters) {
-            if (!filter->matches(packet)) {
+    bool matchesAllFilters(const PcapFile& packet) const
+    {
+        for (const auto& filter : filters)
+        {
+            if (!filter->matches(packet))
+            {
                 return false;
             }
         }
