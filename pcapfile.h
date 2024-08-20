@@ -3,6 +3,15 @@
 
 #include <QObject>
 
+
+struct PacketLineData
+{
+    std::string offset;
+    std::string hexPart;
+    std::string asciiPart;
+};
+
+
 struct PcapFile
 {
     std::string srcIp;
@@ -13,6 +22,7 @@ struct PcapFile
     std::vector<unsigned char> data;
     QString formattedData;
     QString detectedLinks;
+    QVector<PacketLineData> packetLineData;
 };
 
 #endif // PCAPFILE_H

@@ -119,6 +119,90 @@ QString PcapInterpreter::formatPacketData(const std::vector<unsigned char>& data
     return formattedData;
 }
 
+QVector<PacketLineData> PcapInterpreter::getPacketLineData(const std::vector<unsigned char>& data)
+{
+    QVector<PacketLineData> packetLines;
+    const int bytesPerLine = 16;  // Number of bytes to display per line
+    std::string previousAscii;    // Store the previous ASCII part to detect continuation
+
+    for (std::size_t i = 0; i < data.size(); i += bytesPerLine) {
+        PacketLineData lineData;
+
+        // Set the offset
+        std::ostringstream offsetStream;
+        offsetStream << std::setw(6) << std::setfill('0') << std::hex << i;
+        lineData.offset = offsetStream.str() + " ";
+
+        std::string hexPart;
+        std::string asciiPart;
+        bool likelyContinuation = false;  // Flag to determine if this line should be combined with the previous
+
+        // Accumulate hex values and ASCII characters
+        for (std::size_t j = 0; j < bytesPerLine; ++j) {
+            if (i + j < data.size()) {
+                unsigned char byte = data[i + j];
+                hexPart += QString("%1 ").arg(byte, 2, 16, QLatin1Char('0')).toStdString();
+                if (std::isprint(byte)) {
+                    asciiPart += byte;
+                } else {
+                    asciiPart += '.';
+                }
+            } else {
+                hexPart += "   ";  // Add spacing for incomplete lines
+            }
+        }
+
+        // Contextual analysis to determine if the current line is a continuation of the previous
+        if (!previousAscii.empty()) {
+            if (std::isprint(previousAscii.back()) && std::isprint(asciiPart[0])) {
+                likelyContinuation = true;
+            }
+
+            if (std::isalnum(previousAscii.back()) && std::isalnum(asciiPart[0])) {
+                likelyContinuation = true;
+            }
+
+            if (isWordContinuation(previousAscii, asciiPart)) {
+                likelyContinuation = true;
+            }
+        }
+
+        // If likely a continuation, combine the previous line with the current one
+        if (likelyContinuation) {
+            previousAscii += asciiPart;
+            lineData.hexPart = hexPart;
+            lineData.asciiPart = previousAscii;
+            previousAscii.clear();  // Clear the buffer after combining
+        } else {
+            if (!previousAscii.empty()) {
+                PacketLineData previousLineData;
+                previousLineData.offset = lineData.offset;
+                previousLineData.hexPart = hexPart;
+                previousLineData.asciiPart = previousAscii;
+                packetLines.push_back(previousLineData);
+            }
+            previousAscii = asciiPart;
+        }
+
+        lineData.hexPart = hexPart;
+        lineData.asciiPart = asciiPart;
+        packetLines.push_back(lineData);
+    }
+
+    // Add any remaining buffered ASCII part
+    if (!previousAscii.empty()) {
+        PacketLineData finalLineData;
+        std::ostringstream finalOffsetStream;
+        finalOffsetStream << std::setw(6) << std::setfill('0') << std::hex << data.size();
+        finalLineData.offset = finalOffsetStream.str() + " ";
+        finalLineData.hexPart = "";  // No additional hex data to add
+        finalLineData.asciiPart = previousAscii;
+        packetLines.push_back(finalLineData);
+    }
+
+    return packetLines;
+}
+
 QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned char>& data) {
     QString formattedData;
     std::ostringstream oss;
@@ -340,6 +424,8 @@ void PcapInterpreter::interpret(const unsigned char* packet, std::size_t length)
     pFile.formattedData = formatPacketDataContinuation(pFile.data);
 
     pFile.detectedLinks = detectLinksAndAPICalls(pFile.data);
+
+    pFile.packetLineData = getPacketLineData(pFile.data);
 
     //bool isMatch = isMatchedFilter(m_FilterSrcIp, m_FilterDstIp);
 

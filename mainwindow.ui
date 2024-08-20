@@ -226,9 +226,22 @@
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="plainTextEdit"/>
+      <widget class="QTableWidget" name="tableWidget"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="btnAnalyze">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>620</y>
+      <width>271</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Detailly Analyze Packet Data </string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

@@ -5,6 +5,7 @@
 #include <QStandardItem>
 #include <QMessageBox>
 #include "pcapinterpreter.h"
+#include "analysiswindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -28,10 +29,13 @@ private slots:
     void networkDeviceSelected();
     void removePcapFile();
     void onFilterCheckboxStateChanged(int state);
+    void showAnalyzeWindow();
+
 
 private:
     Ui::MainWindow *ui;
     PcapInterpreter *pcapInterpreter;
+    AnalysisWindow *analysisWindow;
     QMenu *actionNetworkMenu;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;

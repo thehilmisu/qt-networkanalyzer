@@ -9,9 +9,9 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find the Qt Widgets package
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+# Find the Qt Widgets and PrintSupport package
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport)
 
 # Find the pcap library
 find_package(PkgConfig REQUIRED)
@@ -33,6 +33,14 @@ set(PROJECT_SOURCES
     networkdevicefinder.h networkdevicefinder.cpp
     ConsoleHandler.h
     pcapcapturer.h pcapcapturer.cpp
+    IPacketFilter.h
+    pcapfile.h
+    sourceipfilter.h
+    destinationipfilter.h
+    protocolfilter.h
+    packetfiltermanager.h
+    analysiswindow.h analysiswindow.cpp analysiswindow.ui
+    qcustomplot.cpp qcustomplot.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -48,18 +56,12 @@ else()
     else()
         add_executable(NetworkAnalyzer
             ${PROJECT_SOURCES}
-            IPacketFilter.h
-            pcapfile.h
-            sourceipfilter.h
-            destinationipfilter.h
-            protocolfilter.h
-            packetfiltermanager.h
         )
     endif()
 endif()
 
-# Link the pcap library and Qt Widgets
-target_link_libraries(NetworkAnalyzer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${PCAP_LIBRARIES})
+# Link the pcap library, Qt Widgets, and PrintSupport
+target_link_libraries(NetworkAnalyzer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::PrintSupport ${PCAP_LIBRARIES})
 
 # Bundle settings for macOS and iOS
 if(${QT_VERSION} VERSION_LESS 6.1.0)

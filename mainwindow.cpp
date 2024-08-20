@@ -1,17 +1,17 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-
-#include "filemonitor.h"
-#include "pcapcapturer.h"
-#include "logger.h"
-#include "networkdevicefinder.h"
 #include <QDebug>
+#include <QFile>
 #include "packetfiltermanager.h"
 #include "sourceipfilter.h"
 #include "destinationipfilter.h"
 #include "protocolfilter.h"
 #include "ConsoleHandler.h"
+#include "filemonitor.h"
+#include "pcapcapturer.h"
+#include "logger.h"
+#include "networkdevicefinder.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -50,6 +50,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->filterTypeCombo->addItem("Destination IP");
     ui->filterTypeCombo->addItem("Protocol Type");
 
+
+    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setHorizontalHeaderLabels({"Offset", "Hex Part", "ASCII Part"});
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+
+    analysisWindow = new AnalysisWindow(this);
+    connect(ui->btnAnalyze, &QPushButton::clicked,this,&MainWindow::showAnalyzeWindow);
+
 }
 
 MainWindow::~MainWindow()
@@ -69,6 +81,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::showAnalyzeWindow()
+{
+    analysisWindow->show();
+}
 
 void MainWindow::startCapture()
 {
@@ -170,8 +186,10 @@ void MainWindow::onFilterCheckboxStateChanged(int state)
 
     if (state == Qt::Checked)
     {
+        //TODO: set the filter from user...
         filterManager.addFilter(QSharedPointer<SourceIpFilter>::create("192.168.1.1"));
         filterManager.addFilter(QSharedPointer<ProtocolFilter>::create("TCP"));
+        filterManager.addFilter(QSharedPointer<DestinationIpFilter>::create("192.168.1.1"));
     }
 
     filteredPackets = filterManager.applyFilters(packets);
@@ -196,6 +214,24 @@ void MainWindow::updatePacketDisplay()
 
 void MainWindow::packetItemSelected()
 {
+    QVector<PacketLineData> packetLines = packets.at(ui->monitoredPackets->currentRow()).packetLineData;
+
+    ui->tableWidget->setRowCount(packetLines.size());
+    ui->tableWidget->setColumnCount(3);
+    ui->tableWidget->setHorizontalHeaderLabels({"Offset", "Hex Part", "ASCII Part"});
+
+    for (int i = 0; i < packetLines.size(); ++i)
+    {
+        QTableWidgetItem* offsetItem = new QTableWidgetItem(QString::fromStdString(packetLines[i].offset));
+        QTableWidgetItem* hexPartItem = new QTableWidgetItem(QString::fromStdString(packetLines[i].hexPart));
+        QTableWidgetItem* asciiPartItem = new QTableWidgetItem(QString::fromStdString(packetLines[i].asciiPart));
+
+        ui->tableWidget->setItem(i, 0, offsetItem);
+        ui->tableWidget->setItem(i, 1, hexPartItem);
+        ui->tableWidget->setItem(i, 2, asciiPartItem);
+    }
+
+    /*
     ui->plainTextEdit->clear();
 
     //const auto& packetData = packets.at(ui->monitoredPackets->currentRow()).data;
@@ -204,7 +240,7 @@ void MainWindow::packetItemSelected()
 
     ui->plainTextEdit->appendPlainText(formattedText);
 
-    ConsoleHandler::getInstance().print(detectedLinks.toStdString());
+    ConsoleHandler::getInstance().print(detectedLinks.toStdString());*/
 
 }
 

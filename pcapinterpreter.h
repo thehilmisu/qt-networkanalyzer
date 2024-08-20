@@ -14,6 +14,7 @@
 #include <QDebug>
 
 
+
 class PcapInterpreter :  public QObject, public IInterpreter<void>
 {
     Q_OBJECT
@@ -25,6 +26,7 @@ public:
     bool isMatchedFilter(const std::string& srcIp, const std::string& dstIp) const;
     void interpret(const unsigned char* packet, std::size_t length) override;
     std::string getProtocolName(int protocol_number);
+    QVector<PacketLineData> getPacketLineData(const std::vector<unsigned char>& data);
 
 signals:
     void packetConstructed(const PcapFile &pFile);
