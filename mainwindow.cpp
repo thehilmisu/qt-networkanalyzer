@@ -17,10 +17,12 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , pcapInterpreter(new PcapInterpreter(this))
+    , isNetworkDeviceSelected(false)
+    , isGraphicEnabled(false)
+    , isCaptureStarted(false)
 {
     ui->setupUi(this);
 
-    isNetworkDeviceSelected = false;
     packets.clear();
 
     actionNetworkMenu = new QMenu(this);
@@ -44,8 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->monitoredPackets->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(ui->monitoredPackets,&QTableWidget::itemSelectionChanged,this,&MainWindow::packetItemSelected);
 
-    isCaptureStarted = false;
-
     ui->filterTypeCombo->addItem("Source IP");
     ui->filterTypeCombo->addItem("Destination IP");
     ui->filterTypeCombo->addItem("Protocol Type");
@@ -60,7 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
 
     analysisWindow = new AnalysisWindow(this);
-    connect(ui->btnAnalyze, &QPushButton::clicked,this,&MainWindow::showAnalyzeWindow);
+    connect(ui->btnAnalyze, &QPushButton::clicked,this,&MainWindow::showGraphicalData);
+    connect(analysisWindow, &AnalysisWindow::setGraphicEnabled,this,&MainWindow::setGraphicEnable);
+
 
 }
 
@@ -81,9 +83,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::showAnalyzeWindow()
+void MainWindow::showGraphicalData()
 {
+    isGraphicEnabled = true;
     analysisWindow->show();
+}
+
+void MainWindow::setGraphicEnable()
+{
+    isGraphicEnabled = false;
 }
 
 void MainWindow::startCapture()
@@ -126,6 +134,7 @@ void MainWindow::startCapture()
         fileMonitor.wait();  // Wait until the thread is finished
 
         isCaptureStarted = false;
+        isGraphicEnabled = false;
 
     }
 
@@ -144,6 +153,11 @@ void MainWindow::packetParsed(const PcapFile &pFile)
 
 
     packets.push_back(pFile);
+
+    if(isGraphicEnabled)
+    {
+        analysisWindow->updateGraph(pFile.srcIp.c_str(), pFile.dstIp.c_str(), pFile.length);
+    }
 }
 
 void MainWindow::onNetworkDeviceSelect()

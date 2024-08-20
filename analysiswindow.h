@@ -8,7 +8,14 @@
 #include <QVector>
 #include <QPair>
 #include <QDateTime>
+#include <QCloseEvent>
 #include "qcustomplot.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class AnalysisWindow;
+}
+QT_END_NAMESPACE
 
 class AnalysisWindow : public QMainWindow
 {
@@ -17,13 +24,15 @@ class AnalysisWindow : public QMainWindow
 public:
     explicit AnalysisWindow(QWidget *parent = nullptr);
     ~AnalysisWindow();
-
-private slots:
-    void updateGraph();
+    void updateGraph(QString sourceIP, QString destinationIP, int packetSize);
+signals:
+    void setGraphicEnabled();
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
-    void setupCustomPlot(QCustomPlot *customPlot);
-
+    Ui::AnalysisWindow *ui;
+    void setupCustomPlot();
     QCustomPlot *customPlot;
     QTimer *timer;
     QVector<QPair<QDateTime, QPair<QString, int>>> packetData;  // Stores the packet data

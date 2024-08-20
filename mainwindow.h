@@ -29,7 +29,8 @@ private slots:
     void networkDeviceSelected();
     void removePcapFile();
     void onFilterCheckboxStateChanged(int state);
-    void showAnalyzeWindow();
+    void showGraphicalData();
+    void setGraphicEnable();
 
 
 private:
@@ -42,6 +43,7 @@ private:
     QVector<PcapFile> packets;
     QVector<PcapFile> filteredPackets;
     std::string fileName = "packets.pcap";
+    bool isGraphicEnabled;
     void updatePacketDisplay();
 
 };

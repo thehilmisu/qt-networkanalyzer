@@ -1,22 +1,23 @@
 // analysiswindow.cpp
 
+#include <iostream>
 #include "analysiswindow.h"
 #include <QVBoxLayout>
+#include "./ui_analysiswindow.h"
 
 AnalysisWindow::AnalysisWindow(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::AnalysisWindow)
 {
-    // Initialize the custom plot
+
+    ui->setupUi(this);
+
     customPlot = new QCustomPlot(this);
-    setCentralWidget(customPlot);
 
-    // Set up the graph
-    setupCustomPlot(customPlot);
+    ui->verticalLayout->addWidget(customPlot);
 
-    // Initialize the timer
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &AnalysisWindow::updateGraph);
-    timer->start(1000); // Update every second
+    setupCustomPlot();
+
 }
 
 AnalysisWindow::~AnalysisWindow()
@@ -25,7 +26,13 @@ AnalysisWindow::~AnalysisWindow()
     delete timer;
 }
 
-void AnalysisWindow::setupCustomPlot(QCustomPlot *customPlot)
+void AnalysisWindow::closeEvent(QCloseEvent *event)
+{
+    std::cout << "window closed" << std::endl;
+    emit setGraphicEnabled();
+}
+
+void AnalysisWindow::setupCustomPlot()
 {
     // Set up interactivity
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
@@ -46,18 +53,10 @@ void AnalysisWindow::setupCustomPlot(QCustomPlot *customPlot)
     customPlot->replot();
 }
 
-void AnalysisWindow::updateGraph()
+void AnalysisWindow::updateGraph(QString sourceIP, QString destinationIP, int packetSize)
 {
-    // Simulate receiving a new packet
     QDateTime currentTime = QDateTime::currentDateTime();
-    QString sourceIP = QString("192.168.1.%1").arg(1 + (rand() % 10)); // Random source IP
-    QString destinationIP = QString("192.168.1.%1").arg(1 + (rand() % 10)); // Random destination IP
-    int packetSize = 500 + (rand() % 1500); // Random packet size between 500 and 2000 bytes
 
-    // Store the new packet data
-    packetData.append(qMakePair(currentTime, qMakePair(sourceIP, packetSize)));
-
-    // Add the new data to the graph
     double time = currentTime.toSecsSinceEpoch();
     customPlot->graph(0)->addData(time, packetSize);
 
