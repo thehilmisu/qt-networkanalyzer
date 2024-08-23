@@ -1,11 +1,14 @@
-#include "mainwindow.h"
+#include "networkanalyzer.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+
+    NetworkAnalyzer n;
+    n.resize(700,500);
+    n.show();
+   
     return a.exec();
 }

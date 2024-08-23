@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
     packetfiltermanager.h
     analysiswindow.h analysiswindow.cpp analysiswindow.ui
     qcustomplot.cpp qcustomplot.h
+    networkanalyzer.cpp networkanalyzer.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -56,6 +57,7 @@ else()
     else()
         add_executable(NetworkAnalyzer
             ${PROJECT_SOURCES}
+            templatewindow.h templatewindow.cpp
         )
     endif()
 endif()
