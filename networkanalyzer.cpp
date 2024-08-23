@@ -64,8 +64,13 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     connect(exitAction, &QAction::triggered, this, &NetworkAnalyzer::close);
     menu->addAction(exitAction);
 
+    helpMenu = new QMenu("Help",this);
+    QAction *about = new QAction("About", this);
+    helpMenu->addAction(about);
+
 
     menuBar->addMenu(menu);
+    menuBar->addMenu(helpMenu);
 
     //monitored packet tablewidget
     monitoredPackets = new QTableWidget(this);
@@ -78,6 +83,11 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     monitoredPackets->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(monitoredPackets,&QTableWidget::itemSelectionChanged,this,&NetworkAnalyzer::packetItemSelected);
 
+    //graph for the incoming packets
+    plotGraph = new QCustomPlot(this);
+    setupGraph();
+    layout->addWidget(plotGraph);
+    
     //packet details table widget
     packetDetails = new QTableWidget(this);
     layout->addWidget(packetDetails);
@@ -98,6 +108,7 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
 
 
     connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &NetworkAnalyzer::packetParsed);
+
 }
 
 NetworkAnalyzer::~NetworkAnalyzer()
@@ -113,6 +124,8 @@ NetworkAnalyzer::~NetworkAnalyzer()
     fileMonitor.requestStop();
     fileMonitor.wait();  // Wait until the thread is finished
     fileMonitor.deleteLater();
+
+    delete plotGraph;
 }
 
 
@@ -167,10 +180,8 @@ void NetworkAnalyzer::packetParsed(const PcapFile &pFile)
 
     packets.push_back(pFile);
 
-    if(isGraphicEnabled)
-    {
-        //analysisWindow->updateGraph(pFile.srcIp.c_str(), pFile.dstIp.c_str(), pFile.length);
-    }
+    updateGraph(pFile.srcIp.c_str(), pFile.dstIp.c_str(), pFile.length);
+    
 }
 
 void NetworkAnalyzer::packetItemSelected()
@@ -238,4 +249,90 @@ void NetworkAnalyzer::startCapture()
 
     }
 
+}
+
+void NetworkAnalyzer::setupGraph()
+{
+    plotGraph->setFixedHeight(250);
+    // Set up interactivity
+    plotGraph->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
+    // Set up the x-axis to show time
+    QSharedPointer<QCPAxisTickerDateTime> dateTimeTicker(new QCPAxisTickerDateTime);
+    dateTimeTicker->setDateTimeFormat("hh:mm:ss");
+    plotGraph->xAxis->setTicker(dateTimeTicker);
+    plotGraph->xAxis->setLabel("Time");
+
+    // Set up the y-axis to represent packet data size
+    plotGraph->yAxis->setLabel("Packet Size (Bytes)");
+
+    plotGraph->addGraph(); // Create a graph to hold the data
+    plotGraph->graph(0)->setLineStyle(QCPGraph::lsNone);
+    plotGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+
+    plotGraph->replot();
+}
+
+void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int packetSize)
+{
+    QDateTime currentTime = QDateTime::currentDateTime();
+
+    double time = currentTime.toSecsSinceEpoch();
+    plotGraph->graph(0)->addData(time, packetSize);
+
+    // Add source and destination IPs as a text label at each point
+    QCPItemText *textLabel = new QCPItemText(plotGraph);
+    textLabel->position->setCoords(time, packetSize); // Set position of the label
+    QString labelText = QString("Src: %1\nDst: %2")
+                            .arg(sourceIP)  // Source IP
+                            .arg(destinationIP);  // Destination IP
+    textLabel->setText(labelText); // Set the IP addresses as the label
+    textLabel->setFont(QFont("Helvetica", 9)); // Adjust font size if needed
+    textLabel->setColor(Qt::black);
+    textLabel->setPositionAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // Set a reasonable range for the x-axis
+    plotGraph->xAxis->setRange(time, 15, Qt::AlignCenter); // Keep the x-axis 60 seconds wide
+
+    // Adjust the y-axis range dynamically
+    plotGraph->yAxis->rescale();
+
+    plotGraph->replot();
+}
+
+// void MainWindow::onFilterCheckboxStateChanged(int state)
+// {
+//     PacketFilterManager filterManager;
+
+//     if (state == Qt::Checked)
+//     {
+//         //TODO: set the filter from user...
+//         filterManager.addFilter(QSharedPointer<SourceIpFilter>::create("192.168.1.1"));
+//         filterManager.addFilter(QSharedPointer<ProtocolFilter>::create("TCP"));
+//         filterManager.addFilter(QSharedPointer<DestinationIpFilter>::create("192.168.1.1"));
+//     }
+
+//     filteredPackets = filterManager.applyFilters(packets);
+//     updatePacketDisplay();
+// }
+
+void NetworkAnalyzer::removePcapFile()
+{
+    QFile file(fileName.c_str());
+
+    if (file.exists())
+    {
+        if (file.remove())
+        {
+            QMessageBox::information(this, "File Removal", "File deleted successfully");
+        }
+        else
+        {
+            QMessageBox::information(this, "File Removal", "Failed to delete file, check if capturing in progress");
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "File Removal", "File does not exists");
+    }
 }

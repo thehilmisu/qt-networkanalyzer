@@ -22,9 +22,6 @@ include_directories(${PCAP_INCLUDE_DIRS})
 
 set(PROJECT_SOURCES
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
     filemonitor.h filemonitor.cpp
     IMonitor.h
     pcapinterpreter.h pcapinterpreter.cpp
@@ -39,7 +36,6 @@ set(PROJECT_SOURCES
     destinationipfilter.h
     protocolfilter.h
     packetfiltermanager.h
-    analysiswindow.h analysiswindow.cpp analysiswindow.ui
     qcustomplot.cpp qcustomplot.h
     networkanalyzer.cpp networkanalyzer.h
 )

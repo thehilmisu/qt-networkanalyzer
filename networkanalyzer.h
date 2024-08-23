@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QTableWidget>
 #include <QStandardItem>
+#include "qcustomplot.h"
 #include "pcapinterpreter.h"
 
 
@@ -29,8 +30,7 @@ private slots:
     void onNetworkDeviceSelect();
     void networkDeviceSelected();
     void startCapture();
-
-
+    void removePcapFile();
 
 private:
     //UI Elements
@@ -39,10 +39,12 @@ private:
     QPushButton *btnStartMonitoring;
     QMenu *actionNetworkMenu;
     QMenu *menu;
+    QMenu *helpMenu;
     QTableWidget *monitoredPackets;
     QTableWidget *packetDetails;
     /////////////////////////////////////
     PcapInterpreter *pcapInterpreter;
+    QCustomPlot *plotGraph;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;
     QVector<PcapFile> packets;
@@ -50,6 +52,8 @@ private:
     std::string fileName = "packets.pcap";
     bool isGraphicEnabled;
     void updatePacketDisplay();
+    void setupGraph();
+    void updateGraph(QString sourceIP, QString destinationIP, int packetSize);
 
 };
 

@@ -7,7 +7,9 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     NetworkAnalyzer n;
-    n.resize(700,500);
+    n.setWindowTitle("Network Analyzer");
+    n.setMinimumWidth(800);
+    n.setMinimumHeight(750);
     n.show();
    
     return a.exec();
