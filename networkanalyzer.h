@@ -48,6 +48,7 @@ private:
     PcapInterpreter *pcapInterpreter;
     QCustomPlot *plotGraph;
     AnalyzeFile *analyzeFile = nullptr;
+    QVector<double> timeData;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;
     QVector<PcapFile> packets;
