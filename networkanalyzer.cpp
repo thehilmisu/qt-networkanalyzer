@@ -18,7 +18,6 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     : QMainWindow(parent)
     , pcapInterpreter(new PcapInterpreter(this))
     , isNetworkDeviceSelected(false)
-    , isGraphicEnabled(false)
     , isCaptureStarted(false)
 {
     // Create the central widget
@@ -30,34 +29,43 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
 
     // interface selection group
     QHBoxLayout *hboxInterfaceSelection = new QHBoxLayout();
-    lblDeviceName = new QLabel("No interface selected!");
-    lblDeviceLabel = new QLabel("Selected interface : ", this);
+    lblDeviceName = new QLabel("Selected Interface : None!");
+    
     btnStartMonitoring = new QPushButton("Start Monitoring", this);
-
-    hboxInterfaceSelection->addWidget(lblDeviceLabel);
+    
     hboxInterfaceSelection->addWidget(lblDeviceName);
     hboxInterfaceSelection->addWidget(btnStartMonitoring);
+
     interfaceGroupBox = new QGroupBox(this);
     interfaceGroupBox->setLayout(hboxInterfaceSelection);
+
     layout->addWidget(interfaceGroupBox);
 
     //filter group
     QHBoxLayout *hboxFilterSelection = new QHBoxLayout();
+
     chkFilterEnabled = new QCheckBox("Enable filter",this);
+    //connect(chkFilterEnabled,&QCheckBox::checkState,this,&NetworkAnalyzer::onFilterCheckboxStateChanged);
     hboxFilterSelection->addWidget(chkFilterEnabled);
+
     lblFilter = new QLabel("Filter by", this);
     hboxFilterSelection->addWidget(lblFilter);
+
     comboFilterType = new QComboBox(this);
     comboFilterType->addItem("Source IP");
     comboFilterType->addItem("Destination IP");
     comboFilterType->addItem("Protocol");
     hboxFilterSelection->addWidget(comboFilterType);
+
     lblFilterText = new QLabel("Filter text : ",this);
     hboxFilterSelection->addWidget(lblFilterText);
+
     txtFilter = new QLineEdit("",this);
     hboxFilterSelection->addWidget(txtFilter);
+
     filterGroupBox = new QGroupBox(this);
     filterGroupBox->setLayout(hboxFilterSelection);
+
     layout->addWidget(filterGroupBox);
 
     // monitoring button
@@ -84,6 +92,17 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     connect(removePcapAction, &QAction::triggered, this, &NetworkAnalyzer::removePcapFile);
     menu->addAction(removePcapAction);
 
+    QMenu *themeSelection = new QMenu("Select theme",this);
+    menu->addMenu(themeSelection);
+    
+    QAction *lightTheme = new QAction("Light theme", this);
+    themeSelection->addAction(lightTheme);
+    connect(lightTheme,&QAction::triggered, this, &NetworkAnalyzer::setLightTheme);
+    
+    QAction *darkTheme = new QAction("Dark Theme", this);
+    themeSelection->addAction(darkTheme);
+    connect(darkTheme,&QAction::triggered,this,&NetworkAnalyzer::setDarkTheme);
+
     // exit action
     QAction *exitAction = new QAction("Exit", this);
     connect(exitAction, &QAction::triggered, this, &NetworkAnalyzer::close);
@@ -106,10 +125,14 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     monitoredPackets->setSelectionBehavior(QAbstractItemView::SelectRows);
     monitoredPackets->setSelectionMode(QAbstractItemView::SingleSelection);
     monitoredPackets->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    
     connect(monitoredPackets,&QTableWidget::itemSelectionChanged,this,&NetworkAnalyzer::packetItemSelected);
 
     //graph for the incoming packets
     plotGraph = new QCustomPlot(this);
+    plotGraph->setStyleSheet("background-color: #2A2A2A;"
+                             " color: #E0E0E0;" 
+                             "border: 1px solid #3D3D3D;");
     setupGraph();
     layout->addWidget(plotGraph);
     
@@ -127,8 +150,6 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     // Create the status bar
     QStatusBar *statusBar = new QStatusBar(this);
     setStatusBar(statusBar);
-
-    // Display a message in the status bar
     statusBar->showMessage("Ready");
 
 
@@ -158,6 +179,33 @@ NetworkAnalyzer::~NetworkAnalyzer()
     delete plotGraph;
 }
 
+void NetworkAnalyzer::setLightTheme()
+{
+    QString themePath = "themes/light_theme.qss";
+    
+    QFile file(themePath);
+    if (file.open(QFile::ReadOnly)) {
+        QString stylesheet = QString::fromUtf8(file.readAll());
+        qApp->setStyleSheet(stylesheet); // Apply the stylesheet to the entire application
+        file.close();
+    } else {
+        qWarning("Could not open theme file: %s", qPrintable(themePath));
+    }
+}
+
+void NetworkAnalyzer::setDarkTheme()
+{
+    QString themePath = "themes/dark_theme.qss";
+    
+    QFile file(themePath);
+    if (file.open(QFile::ReadOnly)) {
+        QString stylesheet = QString::fromUtf8(file.readAll());
+        qApp->setStyleSheet(stylesheet); // Apply the stylesheet to the entire application
+        file.close();
+    } else {
+        qWarning("Could not open theme file: %s", qPrintable(themePath));
+    }
+}
 
 void NetworkAnalyzer::onButtonClicked()
 {
@@ -189,7 +237,7 @@ void NetworkAnalyzer::networkDeviceSelected()
     {
         isNetworkDeviceSelected = true;
         QString deviceName = action->text();
-        lblDeviceName->setText(deviceName);
+        lblDeviceName->setText("Selected Interface : " + deviceName);
 
         // Handle the selected network device
         PcapCapturer::getInstance().setDev(deviceName.toStdString());
@@ -276,8 +324,6 @@ void NetworkAnalyzer::startCapture()
         fileMonitor.wait();  // Wait until the thread is finished
 
         isCaptureStarted = false;
-        isGraphicEnabled = false;
-
     }
 
 }
@@ -290,7 +336,37 @@ void NetworkAnalyzer::setupGraph()
     // Set graph line style to none (no line between points)
     plotGraph->graph(0)->setLineStyle(QCPGraph::lsNone);
 
-    plotGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+    // Customize scatter style (points) with color and shape
+    QCPScatterStyle scatterStyle(QCPScatterStyle::ssCircle, Qt::blue, Qt::blue, 8);
+    plotGraph->graph(0)->setScatterStyle(scatterStyle);
+
+    // Customize the background of the plot area
+    plotGraph->setBackground(QBrush(QColor(240, 240, 240)));
+
+    // Customize the axes
+    plotGraph->xAxis->setBasePen(QPen(Qt::black, 2));
+    plotGraph->yAxis->setBasePen(QPen(Qt::black, 2));
+
+    plotGraph->xAxis->setTickPen(QPen(Qt::black, 2));
+    plotGraph->yAxis->setTickPen(QPen(Qt::black, 2));
+
+    plotGraph->xAxis->setSubTickPen(QPen(Qt::black, 1));
+    plotGraph->yAxis->setSubTickPen(QPen(Qt::black, 1));
+
+    plotGraph->xAxis->setTickLabelColor(Qt::black);
+    plotGraph->yAxis->setTickLabelColor(Qt::black);
+
+    plotGraph->xAxis->setLabelColor(Qt::black);
+    plotGraph->yAxis->setLabelColor(Qt::black);
+
+    // Customize the grid
+    plotGraph->xAxis->grid()->setPen(QPen(QColor(200, 200, 200), 1, Qt::SolidLine));
+    plotGraph->yAxis->grid()->setPen(QPen(QColor(200, 200, 200), 1, Qt::SolidLine));
+
+    plotGraph->xAxis->grid()->setSubGridVisible(true);
+    plotGraph->yAxis->grid()->setSubGridVisible(true);
+    plotGraph->xAxis->grid()->setSubGridPen(QPen(QColor(220, 220, 220), 1, Qt::DotLine));
+    plotGraph->yAxis->grid()->setSubGridPen(QPen(QColor(220, 220, 220), 1, Qt::DotLine));
 
     // Configure x-axis to show time
     QSharedPointer<QCPAxisTickerDateTime> dateTimeTicker(new QCPAxisTickerDateTime);
@@ -328,7 +404,6 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
 
     // Append new data to the containers
     timeData.append(currentTimeSecs);
-   
 
     // Add data to the graph
     plotGraph->graph(0)->addData(currentTimeSecs, packetSize);
@@ -338,8 +413,9 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
     textLabel->position->setCoords(currentTimeSecs, packetSize);
     QString labelText = QString("Src: %1\nDst: %2").arg(sourceIP).arg(destinationIP);
     textLabel->setText(labelText);
-    textLabel->setFont(QFont("Helvetica", 8));
-    textLabel->setColor(Qt::black);
+    textLabel->setFont(QFont("Helvetica", 9, QFont::Bold));
+    textLabel->setColor(Qt::darkBlue);
+    textLabel->setPen(QPen(Qt::darkBlue));  // Border color
     textLabel->setPositionAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     // Adjust y-axis range
@@ -353,7 +429,7 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
     // Determine the current x-axis range
     double xAxisUpper = plotGraph->xAxis->range().upper;
     double xAxisLower = plotGraph->xAxis->range().lower;
-    double xMargin = (xAxisUpper - xAxisLower) * 0.35; 
+    double xMargin = (xAxisUpper - xAxisLower) * 0.35;
 
     // Define the number of points to display
     int pointsToShow = 5;
@@ -373,6 +449,8 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
 
     plotGraph->replot();
 }
+
+
 
 void NetworkAnalyzer::onFilterCheckboxStateChanged(int state)
 {

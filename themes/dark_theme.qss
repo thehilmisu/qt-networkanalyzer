@@ -1,0 +1,256 @@
+QMainWindow {
+    background-color: #0D1117; /* Dark gray background */
+}
+
+QLabel {
+    color: #C9D1D9; /* Light gray text color */
+    font-size: 14px;
+    padding: 4px;
+}
+
+QPushButton {
+    background-color: #238636; /* GitHub green button background */
+    color: white;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 1px solid #2EA043; /* Slightly lighter green border */
+}
+
+QPushButton:hover {
+    background-color: #2EA043; /* Lighter green on hover */
+}
+
+QPushButton:pressed {
+    background-color: #238636; /* Darker green when pressed */
+}
+
+QHeaderView::section {
+    background-color: #161B22; /* Darker gray background for header */
+    color: #C9D1D9; /* Light gray text */
+    padding: 4px;
+    border: 1px solid #30363D; /* Medium gray border */
+}
+
+QTableWidget {
+    background-color: #161B22; /* Darker gray background */
+    gridline-color: #30363D;
+    font-size: 14px;
+    selection-background-color: #58A6FF; /* Soft blue selection */
+    selection-color: white;
+    color:white;
+}
+
+QTableWidget::item {
+    border-bottom: 1px solid #30363D;
+}
+
+QTableWidget::item:selected {
+    background-color: #58A6FF; /* Soft blue for selected item */
+    color: white;
+}
+
+QTableCornerButton::section {
+    background-color: #161B22; /* Darker gray background */
+    border: 1px solid #30363D; /* Medium gray border */
+}
+
+QScrollBar:vertical {
+    background-color: #161B22; /* Darker gray background for vertical scrollbar */
+    width: 15px;
+    margin: 0px 3px 0px 3px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #30363D; /* Medium gray for scrollbar handle */
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    background-color: #161B22;
+    height: 0px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar:horizontal {
+    background-color: #161B22; /* Darker gray background for horizontal scrollbar */
+    height: 15px;
+    margin: 3px 0px 3px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #30363D; /* Medium gray for scrollbar handle */
+    min-width: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    background-color: #161B22;
+    width: 0px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QLineEdit {
+    background-color: #161B22; /* Darker gray background */
+    color: #C9D1D9; /* Light gray text */
+    border: 1px solid #30363D; /* Medium gray border */
+    padding: 4px;
+    border-radius: 5px;
+}
+
+QMenuBar {
+    background-color: #161B22; /* Darker gray background */
+    color: #C9D1D9; /* Light gray text */
+    padding: 4px;
+    font-size: 14px;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 4px 10px;
+}
+
+QMenuBar::item:selected {
+    background-color: #21262D; /* Slightly darker gray when selected */
+}
+
+QMenu {
+    background-color: #161B22; /* Darker gray background */
+    border: 1px solid #30363D; /* Medium gray border */
+    padding: 4px;
+    font-size: 14px;
+    color: #C9D1D9; /* Light gray text */
+}
+
+QMenu::item {
+    background-color: transparent;
+    padding: 5px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #58A6FF; /* Soft blue background when selected */
+    color: white;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #30363D; /* Medium gray for separator */
+    margin: 4px 0;
+}
+
+QAction {
+    font-size: 14px;
+    color: #C9D1D9; /* Light gray text */
+}
+
+QAction:hover {
+    background-color: #21262D; /* Slightly darker gray on hover */
+    color: white;
+}
+
+QCustomPlot {
+    background-color: #161B22; /* Darker gray background */
+    color: #C9D1D9; /* Light gray text */
+    border: 1px solid #30363D; /* Medium gray border */
+}
+
+QCheckBox {
+    color: #C9D1D9; /* Light gray text */
+    font-size: 14px;
+    padding: 4px;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 1px solid #58A6FF; /* Soft blue border */
+    background-color: #161B22; /* Darker gray background */
+}
+
+QCheckBox::indicator:checked {
+    border: 1px solid #58A6FF; /* Soft blue border */
+    background-color: #58A6FF; /* Soft blue background when checked */
+}
+
+QComboBox {
+    background-color: #161B22; /* Darker gray background */
+    border: 1px solid #30363D; /* Medium gray border */
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    color: #C9D1D9; /* Light gray text */
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 30px;
+    border-left-width: 1px;
+    border-left-color: #30363D; /* Medium gray border */
+    border-left-style: solid;
+    background-color: #161B22; /* Darker gray background */
+}
+
+QComboBox::down-arrow {
+    image: url(icons/down-arrow.png); 
+    width: 20px;
+    height: 20px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #0D1117; /* Dark gray background for dropdown items */
+    border: 1px solid #30363D; /* Medium gray border */
+    selection-background-color: #58A6FF; /* Soft blue selection */
+    selection-color: white;
+}
+
+QMessageBox {
+    background-color: #0D1117; /* Dark gray background */
+    color: #C9D1D9; /* Light gray text */
+    border: 1px solid #30363D; /* Medium gray border */
+    font-size: 14px;
+}
+
+QMessageBox QLabel {
+    color: #C9D1D9; /* Light gray text */
+}
+
+QMessageBox QPushButton {
+    background-color: #21262D; /* Darker gray background */
+    color: #C9D1D9; /* Light gray text */
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: 1px solid #30363D; /* Medium gray border */
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #30363D; /* Medium gray on hover */
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #161B22; /* Darker gray when pressed */
+}
+
+QMessageBox QCheckBox {
+    color: #C9D1D9; /* Light gray text */
+    font-size: 14px;
+}
+
+QMessageBox QCheckBox::indicator {
+    border: 1px solid #58A6FF; /* Soft blue border */
+    background-color: #0D1117; /* Dark gray background */
+}
+
+QMessageBox QCheckBox::indicator:checked {
+    background-color: #58A6FF; /* Soft blue background when checked */
+}
+

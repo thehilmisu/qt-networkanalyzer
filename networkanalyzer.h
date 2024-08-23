@@ -34,11 +34,12 @@ private slots:
     void removePcapFile();
     void openFileDialog();
     void onFilterCheckboxStateChanged(int state);
+    void setDarkTheme();
+    void setLightTheme();
 
 private:
     //UI Elements
     QLabel *lblDeviceName;
-    QLabel *lblDeviceLabel;
     QPushButton *btnStartMonitoring;
     QMenu *actionNetworkMenu;
     QMenu *menu;
@@ -62,7 +63,6 @@ private:
     QVector<PcapFile> packets;
     QVector<PcapFile> filteredPackets;
     std::string fileName = "packets.pcap";
-    bool isGraphicEnabled;
     void updatePacketDisplay();
     void setupGraph();
     void updateGraph(QString sourceIP, QString destinationIP, int packetSize);
