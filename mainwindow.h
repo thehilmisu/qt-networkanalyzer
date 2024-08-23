@@ -31,7 +31,7 @@ private slots:
     void onFilterCheckboxStateChanged(int state);
     void showGraphicalData();
     void setGraphicEnable();
-
+    void openFile();
 
 private:
     Ui::MainWindow *ui;

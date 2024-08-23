@@ -203,14 +203,16 @@ QVector<PacketLineData> PcapInterpreter::getPacketLineData(const std::vector<uns
     return packetLines;
 }
 
-QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned char>& data) {
+QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned char>& data)
+{
     QString formattedData;
     std::ostringstream oss;
 
     const int bytesPerLine = 16;  // Number of bytes to display per line
     std::string previousAscii;    // Store the previous ASCII part to detect continuation
 
-    for (std::size_t i = 0; i < data.size(); i += bytesPerLine) {
+    for (std::size_t i = 0; i < data.size(); i += bytesPerLine)
+    {
         // Print the offset in the packet
         oss << std::setw(6) << std::setfill('0') << std::hex << i << ": ";
 
@@ -220,7 +222,8 @@ QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned
         bool likelyContinuation = false;  // Flag to determine if this line should be combined with the previous
 
         // Accumulate hex values and ASCII characters
-        for (std::size_t j = 0; j < bytesPerLine; ++j) {
+        for (std::size_t j = 0; j < bytesPerLine; ++j)
+        {
             if (i + j < data.size()) {
                 unsigned char byte = data[i + j];
                 hexPart += QString("%1 ").arg(byte, 2, 16, QLatin1Char('0')).toStdString();
@@ -235,30 +238,38 @@ QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned
         }
 
         // Contextual analysis to determine if the current line is a continuation of the previous
-        if (!previousAscii.empty()) {
+        if (!previousAscii.empty())
+        {
             // Heuristic: Check if the last character of the previous line and the first character of this line are printable
-            if (std::isprint(previousAscii.back()) && std::isprint(asciiPart[0])) {
+            if (std::isprint(previousAscii.back()) && std::isprint(asciiPart[0]))
+            {
                 likelyContinuation = true;
             }
 
             // Additional heuristic: Check if the ASCII part looks like a continuation of a string
-            if (std::isalnum(previousAscii.back()) && std::isalnum(asciiPart[0])) {
+            if (std::isalnum(previousAscii.back()) && std::isalnum(asciiPart[0]))
+            {
                 likelyContinuation = true;
             }
 
             // Check for known patterns (e.g., words being split across lines)
-            if (isWordContinuation(previousAscii, asciiPart)) {
+            if (isWordContinuation(previousAscii, asciiPart))
+            {
                 likelyContinuation = true;
             }
         }
 
         // If likely a continuation, combine the previous line with the current one
-        if (likelyContinuation) {
+        if (likelyContinuation)
+        {
             previousAscii += asciiPart;
             oss << "  " << previousAscii << "\n";
             previousAscii.clear();  // Clear the buffer after combining
-        } else {
-            if (!previousAscii.empty()) {
+        }
+        else
+        {
+            if (!previousAscii.empty())
+            {
                 // Print the previous buffered line if it's not combined
                 oss << "  " << previousAscii << "\n";
             }
@@ -267,7 +278,8 @@ QString PcapInterpreter::formatPacketDataContinuation(const std::vector<unsigned
     }
 
     // Print any remaining buffered ASCII part
-    if (!previousAscii.empty()) {
+    if (!previousAscii.empty())
+    {
         oss << "  " << previousAscii << "\n";
     }
 

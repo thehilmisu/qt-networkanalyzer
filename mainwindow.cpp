@@ -7,7 +7,6 @@
 #include "sourceipfilter.h"
 #include "destinationipfilter.h"
 #include "protocolfilter.h"
-#include "ConsoleHandler.h"
 #include "filemonitor.h"
 #include "pcapcapturer.h"
 #include "logger.h"
@@ -29,10 +28,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionSelect_network_device->setMenu(actionNetworkMenu);
 
     connect(ui->menuFile,&QMenu::aboutToShow,this,&MainWindow::onNetworkDeviceSelect);
-
     connect(ui->actionRemove_pcap_file,&QAction::triggered,this,&MainWindow::removePcapFile);
-
     connect(ui->actionExit_2,&QAction::triggered,this,&MainWindow::close);
+    connect(ui->actionOpen_File,&QAction::triggered,this,&MainWindow::openFile);
 
     connect(ui->btnStartCapture, &QPushButton::clicked, this, &MainWindow::startCapture);
 
@@ -192,6 +190,11 @@ void MainWindow::networkDeviceSelected()
         // Handle the selected network device
         PcapCapturer::getInstance().setDev(deviceName.toStdString());
     }
+}
+
+void MainWindow::openFile()
+{
+
 }
 
 void MainWindow::onFilterCheckboxStateChanged(int state)

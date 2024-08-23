@@ -8,7 +8,6 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include "IInterpreter.h"
-//#include "ConsoleHandler.h"
 #include "pcapfile.h"
 #include <QObject>
 #include <QDebug>
