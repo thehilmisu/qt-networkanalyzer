@@ -131,7 +131,7 @@ NetworkAnalyzer::~NetworkAnalyzer()
 
     if (analyzeFile != nullptr) {
         delete analyzeFile;
-        analyzeFile = nullptr;  // Set to nullptr to avoid double deletion
+        analyzeFile = nullptr;  
     }
 
     delete plotGraph;
@@ -266,6 +266,11 @@ void NetworkAnalyzer::setupGraph()
     plotGraph->addGraph();
     plotGraph->setMinimumHeight(300);
 
+    // Set graph line style to none (no line between points)
+    plotGraph->graph(0)->setLineStyle(QCPGraph::lsNone);
+
+    plotGraph->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
+
     // Configure x-axis to show time
     QSharedPointer<QCPAxisTickerDateTime> dateTimeTicker(new QCPAxisTickerDateTime);
     dateTimeTicker->setDateTimeFormat("hh:mm:ss");
@@ -321,12 +326,13 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
     double yLower = plotGraph->yAxis->range().lower;
     double yUpper = plotGraph->yAxis->range().upper;
     double yMargin = (yUpper - yLower) * 0.1; // 10% margin
+
     plotGraph->yAxis->setRange(yLower - yMargin, yUpper + yMargin);
 
     // Determine the current x-axis range
     double xAxisUpper = plotGraph->xAxis->range().upper;
     double xAxisLower = plotGraph->xAxis->range().lower;
-    double visibleRange = xAxisUpper - xAxisLower;
+    double xMargin = (xAxisUpper - xAxisLower) * 0.2; 
 
     // Define the number of points to display
     int pointsToShow = 5;
@@ -342,18 +348,8 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
         xLowerBound = timeData[timeData.size() - pointsToShow];
     }
 
-    // Check if we need to move the x-axis range
-    bool autoScroll = false;
-    if(timeData.size() > 2)
-        autoScroll = xAxisUpper >= timeData[timeData.size() - 2]; // Close to the end
-    
-    if (autoScroll)
-    {
-        // Set x-axis range to show the latest points
-        plotGraph->xAxis->setRange(xLowerBound, timeData.last());
-    }
+    plotGraph->xAxis->setRange(xLowerBound, timeData.last() + xMargin);
 
-    // Replot the graph to reflect changes
     plotGraph->replot();
 }
 
