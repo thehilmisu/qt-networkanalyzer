@@ -353,7 +353,7 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
     // Determine the current x-axis range
     double xAxisUpper = plotGraph->xAxis->range().upper;
     double xAxisLower = plotGraph->xAxis->range().lower;
-    double xMargin = (xAxisUpper - xAxisLower) * 0.2; 
+    double xMargin = (xAxisUpper - xAxisLower) * 0.35; 
 
     // Define the number of points to display
     int pointsToShow = 5;

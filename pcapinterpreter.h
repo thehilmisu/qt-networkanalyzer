@@ -24,7 +24,6 @@ public:
     void setFilter(const std::string& srcIp, const std::string& dstIp);
     bool isMatchedFilter(const std::string& srcIp, const std::string& dstIp) const;
     void interpret(const unsigned char* packet, std::size_t length) override;
-    std::string getProtocolName(int protocol_number);
     QVector<PacketLineData> getPacketLineData(const std::vector<unsigned char>& data);
 
 signals:
@@ -33,7 +32,6 @@ signals:
 private:
     std::string m_FilterSrcIp;
     std::string m_FilterDstIp;
-    std::unordered_map<int, std::string> ipProtocolNumbers;
     QString formatPacketData(const std::vector<unsigned char>& data);
     QString formatPacketDataContinuation(const std::vector<unsigned char>& data);
     bool isWordContinuation(const std::string& prevLine, const std::string& currentLine);

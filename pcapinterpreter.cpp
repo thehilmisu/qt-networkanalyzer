@@ -1,4 +1,5 @@
 #include "pcapinterpreter.h"
+#include "ipprotocolnumbers.h"
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -8,43 +9,9 @@
 PcapInterpreter::PcapInterpreter(QObject *parent)
     : QObject(parent)
 {
-
     // Register the PcapFile type with Qt's meta-object system
     qRegisterMetaType<PcapFile>("PcapFile");
 
-    // got it from wikipedia not a complete list
-    ipProtocolNumbers =
-        {
-            {0, "HOPOPT"},       // IPv6 Hop-by-Hop Option
-            {1, "ICMP"},         // Internet Control Message Protocol
-            {2, "IGMP"},         // Internet Group Management Protocol
-            {3, "GGP"},          // Gateway-to-Gateway Protocol
-            {4, "IP-in-IP"},     // IP in IP (encapsulation)
-            {5, "ST"},           // Stream Protocol
-            {6, "TCP"},          // Transmission Control Protocol
-            {8, "EGP"},          // Exterior Gateway Protocol
-            {9, "IGP"},          // Interior Gateway Protocol
-            {17, "UDP"},         // User Datagram Protocol
-            {27, "RDP"},         // Reliable Datagram Protocol
-            {41, "IPv6"},        // IPv6 encapsulation
-            {43, "IPv6-Route"},  // Routing Header for IPv6
-            {44, "IPv6-Frag"},   // Fragment Header for IPv6
-            {47, "GRE"},         // Generic Routing Encapsulation
-            {50, "ESP"},         // Encap Security Payload
-            {51, "AH"},          // Authentication Header
-            {58, "ICMPv6"},      // ICMP for IPv6
-            {59, "IPv6-NoNxt"},  // No Next Header for IPv6
-            {60, "IPv6-Opts"},   // Destination Options for IPv6
-            {88, "EIGRP"},       // EIGRP
-            {89, "OSPF"},        // Open Shortest Path First
-            {94, "IPIP"},        // IP-within-IP Encapsulation Protocol
-            {97, "ETHERIP"},     // Ethernet-within-IP Encapsulation
-            {112, "VRRP"},       // Virtual Router Redundancy Protocol
-            {115, "L2TP"},       // Layer Two Tunneling Protocol
-            {132, "SCTP"},       // Stream Control Transmission Protocol
-            {136, "UDPLite"},    // Lightweight User Datagram Protocol
-            {137, "MPLS-in-IP"}  // MPLS-in-IP
-        };
 }
 
 void PcapInterpreter::setFilter(const std::string& srcIp, const std::string& dstIp)
@@ -58,15 +25,6 @@ bool PcapInterpreter::isMatchedFilter(const std::string& srcIp, const std::strin
     bool srcMatch = m_FilterSrcIp.empty() || m_FilterSrcIp == srcIp;
     bool dstMatch = m_FilterDstIp.empty() || m_FilterDstIp == dstIp;
     return srcMatch && dstMatch;
-}
-
-std::string PcapInterpreter::getProtocolName(int protocol_number)
-{
-    auto it = ipProtocolNumbers.find(protocol_number);
-    if (it != ipProtocolNumbers.end())
-        return it->second;
-
-    return "Unknown Protocol";
 }
 
 QString PcapInterpreter::formatPacketData(const std::vector<unsigned char>& data)
@@ -423,7 +381,7 @@ void PcapInterpreter::interpret(const unsigned char* packet, std::size_t length)
     pFile.protocol_number = ipHeader->ip_p;
 
     // Extract protocol name
-    pFile.protocol_name = getProtocolName(ipHeader->ip_p);
+    pFile.protocol_name = IPProtocolNumbers::getProtocolName(ipHeader->ip_p);
 
     // Extract total length
     pFile.length = ntohs(ipHeader->ip_len);

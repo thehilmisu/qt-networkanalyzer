@@ -39,6 +39,7 @@ set(PROJECT_SOURCES
     qcustomplot.cpp qcustomplot.h
     networkanalyzer.cpp networkanalyzer.h
     analyzefile.cpp analyzefile.h
+    ipprotocolnumbers.cpp ipprotocolnumbers.h
 
 )
 
