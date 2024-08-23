@@ -37,7 +37,28 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     hboxInterfaceSelection->addWidget(lblDeviceLabel);
     hboxInterfaceSelection->addWidget(lblDeviceName);
     hboxInterfaceSelection->addWidget(btnStartMonitoring);
-    layout->addLayout(hboxInterfaceSelection);
+    interfaceGroupBox = new QGroupBox(this);
+    interfaceGroupBox->setLayout(hboxInterfaceSelection);
+    layout->addWidget(interfaceGroupBox);
+
+    //filter group
+    QHBoxLayout *hboxFilterSelection = new QHBoxLayout();
+    chkFilterEnabled = new QCheckBox("Enable filter",this);
+    hboxFilterSelection->addWidget(chkFilterEnabled);
+    lblFilter = new QLabel("Filter by", this);
+    hboxFilterSelection->addWidget(lblFilter);
+    comboFilterType = new QComboBox(this);
+    comboFilterType->addItem("Source IP");
+    comboFilterType->addItem("Destination IP");
+    comboFilterType->addItem("Protocol");
+    hboxFilterSelection->addWidget(comboFilterType);
+    lblFilterText = new QLabel("Filter text : ",this);
+    hboxFilterSelection->addWidget(lblFilterText);
+    txtFilter = new QLineEdit("",this);
+    hboxFilterSelection->addWidget(txtFilter);
+    filterGroupBox = new QGroupBox(this);
+    filterGroupBox->setLayout(hboxFilterSelection);
+    layout->addWidget(filterGroupBox);
 
     // monitoring button
     connect(btnStartMonitoring, &QPushButton::clicked, this, &NetworkAnalyzer::startCapture);
@@ -353,21 +374,35 @@ void NetworkAnalyzer::updateGraph(QString sourceIP, QString destinationIP, int p
     plotGraph->replot();
 }
 
-// void MainWindow::onFilterCheckboxStateChanged(int state)
-// {
-//     PacketFilterManager filterManager;
+void NetworkAnalyzer::onFilterCheckboxStateChanged(int state)
+{
+    PacketFilterManager filterManager;
 
-//     if (state == Qt::Checked)
-//     {
-//         //TODO: set the filter from user...
-//         filterManager.addFilter(QSharedPointer<SourceIpFilter>::create("192.168.1.1"));
-//         filterManager.addFilter(QSharedPointer<ProtocolFilter>::create("TCP"));
-//         filterManager.addFilter(QSharedPointer<DestinationIpFilter>::create("192.168.1.1"));
-//     }
+    if (state == Qt::Checked)
+    {
+        //TODO: set the filter from user...
+        filterManager.addFilter(QSharedPointer<SourceIpFilter>::create("192.168.1.1"));
+        filterManager.addFilter(QSharedPointer<ProtocolFilter>::create("TCP"));
+        filterManager.addFilter(QSharedPointer<DestinationIpFilter>::create("192.168.1.1"));
+    }
 
-//     filteredPackets = filterManager.applyFilters(packets);
-//     updatePacketDisplay();
-// }
+    filteredPackets = filterManager.applyFilters(packets);
+    updatePacketDisplay();
+}
+
+void NetworkAnalyzer::updatePacketDisplay()
+{
+    monitoredPackets->clear();  // Clear current display
+    for (const auto& packet : filteredPackets)
+    {
+        int row = monitoredPackets->rowCount();
+        monitoredPackets->insertRow(row);
+        monitoredPackets->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(packet.srcIp)));
+        monitoredPackets->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(packet.dstIp)));
+        monitoredPackets->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(packet.protocol_name)));
+        monitoredPackets->setItem(row, 3, new QTableWidgetItem(QString::number(packet.length)));
+    }
+}
 
 void NetworkAnalyzer::removePcapFile()
 {

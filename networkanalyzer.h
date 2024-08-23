@@ -33,6 +33,7 @@ private slots:
     void startCapture();
     void removePcapFile();
     void openFileDialog();
+    void onFilterCheckboxStateChanged(int state);
 
 private:
     //UI Elements
@@ -44,6 +45,13 @@ private:
     QMenu *helpMenu;
     QTableWidget *monitoredPackets;
     QTableWidget *packetDetails;
+    QLabel *lblFilter;
+    QLabel *lblFilterText;
+    QCheckBox *chkFilterEnabled;
+    QComboBox *comboFilterType;
+    QLineEdit *txtFilter;
+    QGroupBox *interfaceGroupBox;
+    QGroupBox *filterGroupBox;
     /////////////////////////////////////
     PcapInterpreter *pcapInterpreter;
     QCustomPlot *plotGraph;

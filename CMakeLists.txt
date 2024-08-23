@@ -35,11 +35,11 @@ set(PROJECT_SOURCES
     sourceipfilter.h
     destinationipfilter.h
     protocolfilter.h
-    packetfiltermanager.h
+    packetfiltermanager.cpp packetfiltermanager.h
     qcustomplot.cpp qcustomplot.h
     networkanalyzer.cpp networkanalyzer.h
     analyzefile.cpp analyzefile.h
-    
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
