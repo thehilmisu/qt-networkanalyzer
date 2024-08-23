@@ -13,6 +13,7 @@
 #include <QStandardItem>
 #include "qcustomplot.h"
 #include "pcapinterpreter.h"
+#include "analyzefile.h"
 
 
 class NetworkAnalyzer : public QMainWindow
@@ -31,6 +32,7 @@ private slots:
     void networkDeviceSelected();
     void startCapture();
     void removePcapFile();
+    void openFileDialog();
 
 private:
     //UI Elements
@@ -45,6 +47,7 @@ private:
     /////////////////////////////////////
     PcapInterpreter *pcapInterpreter;
     QCustomPlot *plotGraph;
+    AnalyzeFile *analyzeFile = nullptr;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;
     QVector<PcapFile> packets;

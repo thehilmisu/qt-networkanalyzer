@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QHeaderView>
 #include <QTableWidgetItem>
+#include <QFileDialog>
 #include "packetfiltermanager.h"
 #include "sourceipfilter.h"
 #include "destinationipfilter.h"
@@ -50,14 +51,19 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     // Create a menu
     menu = new QMenu("File", this);
 
-    QAction *openFile = new QAction("Open File", this);
-    menu->addAction(openFile);
+    QAction *openFileAction = new QAction("Open File", this);
+    menu->addAction(openFileAction);
+    connect(openFileAction,&QAction::triggered,this,&NetworkAnalyzer::openFileDialog);
 
     QAction *selectNetworkDeviceAction = new QAction("Select Network Device", this);
     actionNetworkMenu = new QMenu(this);
     selectNetworkDeviceAction->setMenu(actionNetworkMenu);
     connect(menu,&QMenu::aboutToShow,this,&NetworkAnalyzer::onNetworkDeviceSelect);
     menu->addAction(selectNetworkDeviceAction);
+
+    QAction *removePcapAction = new QAction("Remove generated file", this);
+    connect(removePcapAction, &QAction::triggered, this, &NetworkAnalyzer::removePcapFile);
+    menu->addAction(removePcapAction);
 
     // exit action
     QAction *exitAction = new QAction("Exit", this);
@@ -124,6 +130,11 @@ NetworkAnalyzer::~NetworkAnalyzer()
     fileMonitor.requestStop();
     fileMonitor.wait();  // Wait until the thread is finished
     fileMonitor.deleteLater();
+
+    if (analyzeFile != nullptr) {
+        delete analyzeFile;
+        analyzeFile = nullptr;  // Set to nullptr to avoid double deletion
+    }
 
     delete plotGraph;
 }
@@ -334,5 +345,28 @@ void NetworkAnalyzer::removePcapFile()
     else
     {
         QMessageBox::information(this, "File Removal", "File does not exists");
+    }
+}
+
+void NetworkAnalyzer::openFileDialog()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, 
+                                                    tr("Open File"), 
+                                                    "/home/developer/Desktop", 
+                                                    tr("All Files (*);;Pcap Files (*.pcap);;"));
+
+    if (!fileName.isEmpty()) 
+    {
+        if (analyzeFile != nullptr) 
+        {
+            // Delete the existing instance
+            delete analyzeFile;
+            analyzeFile = nullptr;  
+        }
+        
+        analyzeFile = new AnalyzeFile(fileName, this);
+        analyzeFile->setMinimumWidth(800);
+        analyzeFile->setMinimumHeight(750);
+        analyzeFile->show();
     }
 }

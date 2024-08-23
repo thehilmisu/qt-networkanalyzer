@@ -38,6 +38,8 @@ set(PROJECT_SOURCES
     packetfiltermanager.h
     qcustomplot.cpp qcustomplot.h
     networkanalyzer.cpp networkanalyzer.h
+    analyzefile.cpp analyzefile.h
+    
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
