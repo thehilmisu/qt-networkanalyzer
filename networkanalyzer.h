@@ -27,15 +27,13 @@ public:
 private slots:
     void packetParsed(const PcapFile &pFile);
     void packetItemSelected();
-    void onButtonClicked();
     void onNetworkDeviceSelect();
     void networkDeviceSelected();
     void startCapture();
     void removePcapFile();
     void openFileDialog();
     void onFilterCheckboxStateChanged(int state);
-    void setDarkTheme();
-    void setLightTheme();
+    void toggleTheme();
 
 private:
     //UI Elements
@@ -60,6 +58,7 @@ private:
     QVector<double> timeData;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;
+    bool isDarkTheme;
     QVector<PcapFile> packets;
     QVector<PcapFile> filteredPackets;
     std::string fileName = "packets.pcap";

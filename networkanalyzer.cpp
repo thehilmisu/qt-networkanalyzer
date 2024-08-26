@@ -19,6 +19,7 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     , pcapInterpreter(new PcapInterpreter(this))
     , isNetworkDeviceSelected(false)
     , isCaptureStarted(false)
+    , isDarkTheme(false)
 {
     // Create the central widget
     QWidget *centralWidget = new QWidget(this);
@@ -97,11 +98,11 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     
     QAction *lightTheme = new QAction("Light theme", this);
     themeSelection->addAction(lightTheme);
-    connect(lightTheme,&QAction::triggered, this, &NetworkAnalyzer::setLightTheme);
+    connect(lightTheme,&QAction::triggered, this, &NetworkAnalyzer::toggleTheme);
     
     QAction *darkTheme = new QAction("Dark Theme", this);
     themeSelection->addAction(darkTheme);
-    connect(darkTheme,&QAction::triggered,this,&NetworkAnalyzer::setDarkTheme);
+    connect(darkTheme,&QAction::triggered,this,&NetworkAnalyzer::toggleTheme);
 
     // exit action
     QAction *exitAction = new QAction("Exit", this);
@@ -152,6 +153,7 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     setStatusBar(statusBar);
     statusBar->showMessage("Ready");
 
+    toggleTheme();
 
     connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &NetworkAnalyzer::packetParsed);
 
@@ -179,9 +181,14 @@ NetworkAnalyzer::~NetworkAnalyzer()
     delete plotGraph;
 }
 
-void NetworkAnalyzer::setLightTheme()
+void NetworkAnalyzer::toggleTheme()
 {
-    QString themePath = "themes/light_theme.qss";
+    isDarkTheme = !isDarkTheme;
+    QString themePath = "";
+    if(isDarkTheme)
+        themePath = "themes/dark_theme.qss";
+    else
+        themePath = "themes/light_theme.qss";
     
     QFile file(themePath);
     if (file.open(QFile::ReadOnly)) {
@@ -193,24 +200,6 @@ void NetworkAnalyzer::setLightTheme()
     }
 }
 
-void NetworkAnalyzer::setDarkTheme()
-{
-    QString themePath = "themes/dark_theme.qss";
-    
-    QFile file(themePath);
-    if (file.open(QFile::ReadOnly)) {
-        QString stylesheet = QString::fromUtf8(file.readAll());
-        qApp->setStyleSheet(stylesheet); // Apply the stylesheet to the entire application
-        file.close();
-    } else {
-        qWarning("Could not open theme file: %s", qPrintable(themePath));
-    }
-}
-
-void NetworkAnalyzer::onButtonClicked()
-{
-    QMessageBox::information(this, "Button Clicked", "You clicked the button!");
-}
 
 void NetworkAnalyzer::onNetworkDeviceSelect()
 {
