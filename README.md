@@ -13,7 +13,7 @@ Graphical Visualization:
 Display the source and destination IPs on the graph for each packet.
 Dynamically update the graph in real-time as new packets are captured.
 
-##User Interface:
+## User Interface:
 
 Developed with a clean, user-friendly UI.
 Implemented two different themes (GitHub Dark and Light) for the user interface.
