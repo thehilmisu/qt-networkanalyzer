@@ -19,7 +19,6 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     , pcapInterpreter(new PcapInterpreter(this))
     , isNetworkDeviceSelected(false)
     , isCaptureStarted(false)
-    , isDarkTheme(false)
 {
     // Create the central widget
     QWidget *centralWidget = new QWidget(this);
@@ -98,23 +97,36 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     
     QAction *lightTheme = new QAction("Light theme", this);
     themeSelection->addAction(lightTheme);
-    connect(lightTheme,&QAction::triggered, this, &NetworkAnalyzer::toggleTheme);
+    connect(lightTheme,&QAction::triggered, this, &NetworkAnalyzer::lightTheme);
     
     QAction *darkTheme = new QAction("Dark Theme", this);
     themeSelection->addAction(darkTheme);
-    connect(darkTheme,&QAction::triggered,this,&NetworkAnalyzer::toggleTheme);
+    connect(darkTheme,&QAction::triggered,this,&NetworkAnalyzer::darkTheme);
 
     // exit action
     QAction *exitAction = new QAction("Exit", this);
     connect(exitAction, &QAction::triggered, this, &NetworkAnalyzer::close);
     menu->addAction(exitAction);
 
+    exportMenu = new QMenu("Export",this);
+    
+    QAction *exportGraphAction = new QAction("Export Graph", this);
+    exportMenu->addAction(exportGraphAction);
+    //connect(openFileAction,&QAction::triggered,this,&NetworkAnalyzer::openFileDialog);
+
+    QAction *exportFile = new QAction("Export File", this);
+    exportMenu->addAction(exportFile);
+    //connect(openFileAction,&QAction::triggered,this,&NetworkAnalyzer::openFileDialog);
+
     helpMenu = new QMenu("Help",this);
     QAction *about = new QAction("About", this);
     helpMenu->addAction(about);
 
+    
+
 
     menuBar->addMenu(menu);
+    menuBar->addMenu(exportMenu);
     menuBar->addMenu(helpMenu);
 
     //monitored packet tablewidget
@@ -141,7 +153,7 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     packetDetails = new QTableWidget(this);
     layout->addWidget(packetDetails);
     packetDetails->setColumnCount(3);
-    packetDetails->setHorizontalHeaderLabels({"Offset", "Hex Part", "ASCII Part"});
+    packetDetails->setHorizontalHeaderLabels({"Offset", " Hex ", " ASCII "});
     packetDetails->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     packetDetails->setSelectionMode(QAbstractItemView::NoSelection);
     packetDetails->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -153,7 +165,7 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
     setStatusBar(statusBar);
     statusBar->showMessage("Ready");
 
-    toggleTheme();
+    this->darkTheme();
 
     connect(pcapInterpreter, &PcapInterpreter::packetConstructed, this, &NetworkAnalyzer::packetParsed);
 
@@ -181,15 +193,9 @@ NetworkAnalyzer::~NetworkAnalyzer()
     delete plotGraph;
 }
 
-void NetworkAnalyzer::toggleTheme()
+void NetworkAnalyzer::darkTheme()
 {
-    isDarkTheme = !isDarkTheme;
-    QString themePath = "";
-    if(isDarkTheme)
-        themePath = "themes/dark_theme.qss";
-    else
-        themePath = "themes/light_theme.qss";
-    
+    QString themePath = "../themes/dark_theme.qss";
     QFile file(themePath);
     if (file.open(QFile::ReadOnly)) {
         QString stylesheet = QString::fromUtf8(file.readAll());
@@ -198,6 +204,21 @@ void NetworkAnalyzer::toggleTheme()
     } else {
         qWarning("Could not open theme file: %s", qPrintable(themePath));
     }
+
+}
+void NetworkAnalyzer::lightTheme()
+{
+    QString themePath = "../themes/light_theme.qss";
+   
+    QFile file(themePath);
+    if (file.open(QFile::ReadOnly)) {
+        QString stylesheet = QString::fromUtf8(file.readAll());
+        qApp->setStyleSheet(stylesheet); // Apply the stylesheet to the entire application
+        file.close();
+    } else {
+        qWarning("Could not open theme file: %s", qPrintable(themePath));
+    }
+
 }
 
 
@@ -258,7 +279,7 @@ void NetworkAnalyzer::packetItemSelected()
 
     packetDetails->setRowCount(packetLines.size());
     packetDetails->setColumnCount(3);
-    packetDetails->setHorizontalHeaderLabels({"Offset", "Hex Part", "ASCII Part"});
+    packetDetails->setHorizontalHeaderLabels({"Offset", " Hex ", " ASCII "});
 
     for (int i = 0; i < packetLines.size(); ++i)
     {

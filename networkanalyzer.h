@@ -16,6 +16,11 @@
 #include "analyzefile.h"
 
 
+enum THEME {
+    DARK_THEME = 0,
+    LIGHT_THEME
+};
+
 class NetworkAnalyzer : public QMainWindow
 {
     Q_OBJECT
@@ -33,7 +38,8 @@ private slots:
     void removePcapFile();
     void openFileDialog();
     void onFilterCheckboxStateChanged(int state);
-    void toggleTheme();
+    void lightTheme();
+    void darkTheme();
 
 private:
     //UI Elements
@@ -41,6 +47,7 @@ private:
     QPushButton *btnStartMonitoring;
     QMenu *actionNetworkMenu;
     QMenu *menu;
+    QMenu *exportMenu;
     QMenu *helpMenu;
     QTableWidget *monitoredPackets;
     QTableWidget *packetDetails;
@@ -58,7 +65,6 @@ private:
     QVector<double> timeData;
     bool isNetworkDeviceSelected;
     bool isCaptureStarted;
-    bool isDarkTheme;
     QVector<PcapFile> packets;
     QVector<PcapFile> filteredPackets;
     std::string fileName = "packets.pcap";
