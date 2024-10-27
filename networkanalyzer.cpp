@@ -110,20 +110,17 @@ NetworkAnalyzer::NetworkAnalyzer(QWidget *parent)
 
     exportMenu = new QMenu("Export",this);
     
-    QAction *exportGraphAction = new QAction("Export Graph", this);
+    QAction *exportGraphAction = new QAction("Export Graph as PNG", this);
     exportMenu->addAction(exportGraphAction);
-    //connect(openFileAction,&QAction::triggered,this,&NetworkAnalyzer::openFileDialog);
+    connect(exportGraphAction,&QAction::triggered,this,&NetworkAnalyzer::exportAsPNG);
 
-    QAction *exportFile = new QAction("Export File", this);
+    QAction *exportFile = new QAction("Export data as pcap", this);
     exportMenu->addAction(exportFile);
-    //connect(openFileAction,&QAction::triggered,this,&NetworkAnalyzer::openFileDialog);
+    connect(exportFile,&QAction::triggered,this,&NetworkAnalyzer::exportAsPCAP);
 
     helpMenu = new QMenu("Help",this);
     QAction *about = new QAction("About", this);
     helpMenu->addAction(about);
-
-    
-
 
     menuBar->addMenu(menu);
     menuBar->addMenu(exportMenu);
@@ -219,6 +216,23 @@ void NetworkAnalyzer::lightTheme()
         qWarning("Could not open theme file: %s", qPrintable(themePath));
     }
 
+}
+
+void NetworkAnalyzer::exportAsPNG()
+{
+    QString filePath = QFileDialog::getSaveFileName(nullptr, "Save Plot", "", "PNG Files (*.png);;All Files (*)");
+
+    if (!filePath.isEmpty()) {
+        if (!filePath.endsWith(".png", Qt::CaseInsensitive)) {
+            filePath += ".png";
+        }
+        bool result = plotGraph->savePng(filePath, 800, 600);  
+     }
+}
+
+void NetworkAnalyzer::exportAsPCAP()
+{
+    QMessageBox::warning(this,"Warning","Export as pcap not implemented yet!");
 }
 
 

@@ -37,6 +37,8 @@ private slots:
     void startCapture();
     void removePcapFile();
     void openFileDialog();
+    void exportAsPNG();
+    void exportAsPCAP();
     void onFilterCheckboxStateChanged(int state);
     void lightTheme();
     void darkTheme();
